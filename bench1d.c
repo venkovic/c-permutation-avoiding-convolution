@@ -23,12 +23,12 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  int t = 24;            // Default: 24
+  int t2 = 24;           // Default: 24
   int timing_runs = 10;  // Default: 10
 
   for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "-t") == 0 && i + 1 < argc) {
-      t = atoi(argv[++i]);
+      t2 = atoi(argv[++i]);
     } else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
       timing_runs = atoi(argv[++i]);
     } else {
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  int n = 1 << t; // n = 2^t
+  int n = 1 << t2; // n = 2^t2
 
   // Allocate memory
   double complex* x  = malloc(n * sizeof(double complex));
@@ -62,10 +62,13 @@ int main(int argc, char** argv) {
     double max_err = get_max_error(re, im, fftw_out_flat, n);
     printf("Max error FFT radix-2 vs FFTW: %.3e\n", max_err);
 
+    free(rho);
+    free_twiddles(twiddle_re, twiddle_im, t2);
+
     if (n % 4 == 0) {
-      free(rho);
-      free_twiddles(twiddle_re, twiddle_im, t);
+      int t4 = t2 >> 1;
       int* rho = precompute_index_reversal_permutation_r4(n);
+      double** twiddle_re, **twiddle_im;
       precompute_twiddles_r4(n, &twiddle_re, &twiddle_im);
           
       initialize_data(x, fftw_in_flat, n);
@@ -75,12 +78,15 @@ int main(int argc, char** argv) {
 
       max_err = get_max_error(re, im, fftw_out_flat, n);
       printf("Max error FFT radix-4 vs FFTW: %.3e\n", max_err);          
+
+      free(rho);
+      free_twiddles(twiddle_re, twiddle_im, t4);
     }
 
     if (n % 8 == 0) {
-      free(rho);
-      free_twiddles(twiddle_re, twiddle_im, t);
+      int t8 = t2 >> 2;
       int* rho = precompute_index_reversal_permutation_r8(n);
+      double** twiddle_re, **twiddle_im;
       precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
           
       initialize_data(x, fftw_in_flat, n);
@@ -90,6 +96,9 @@ int main(int argc, char** argv) {
 
       max_err = get_max_error(re, im, fftw_out_flat, n);
       printf("Max error FFT radix-8 vs FFTW: %.3e\n", max_err);
+
+      free(rho);
+      free_twiddles(twiddle_re, twiddle_im, t8);      
     }
   }
 
@@ -131,14 +140,16 @@ int main(int argc, char** argv) {
     printf("Average permutation time:    %.6f seconds\n", total_perm / timing_runs);
     printf("Average Unordered FFT time:  %.6f seconds\n", total_ufft / timing_runs);
     printf("Average FFTW time:           %.6f seconds\n", total_fftw / timing_runs);
+
+    free(rho);
+    free_twiddles(twiddle_re, twiddle_im, t2);
   }
 
   // Cleanup
   fftw_destroy_plan(p);
   fftw_free(fftw_in);
   fftw_free(fftw_out);
-  free_twiddles(twiddle_re, twiddle_im, t);
-  free(x); free(re); free(im); free(rho);
+  free(x); free(re); free(im); 
 
   return 0;
 }
