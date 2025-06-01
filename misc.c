@@ -2,6 +2,7 @@
 #include <math.h>
 #include <complex.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 double time_diff(struct timespec start, struct timespec end) {
   return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
@@ -25,4 +26,23 @@ void initialize_data(double complex *x, double *fftw_in_flat, int n) {
     fftw_in_flat[2 * i]     = creal(x[i]);
     fftw_in_flat[2 * i + 1] = cimag(x[i]);
   }
+}
+
+void initialize_data_split(double *re, double *im, double *fftw_in_flat, int n) {
+  for (int i = 0; i < n; ++i) {
+    re[i] = rand() / (double)RAND_MAX;
+    im[i] = rand() / (double)RAND_MAX; 
+    fftw_in_flat[2 * i]     = re[i];
+    fftw_in_flat[2 * i + 1] = im[i];
+  }
+}
+
+bool supports_radix_4(int t2) {
+  if (t2 % 2) return false;
+  return true;
+}
+
+bool supports_radix_8(int t2) {
+  if (t2 % 3) return false;
+  return true;
 }
