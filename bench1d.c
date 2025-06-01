@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     }
 
     if (n % 8 == 0) {
-      /*free(rho);
+      free(rho);
       free_twiddles(twiddle_re, twiddle_im, t);
       int* rho = precompute_index_reversal_permutation_r8(n);
       precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
       fftw_execute(p);
 
       max_err = get_max_error(re, im, fftw_out_flat, n);
-      printf("Max error FFT radix-8 vs FFTW: %.3e\n", max_err);          */
+      printf("Max error FFT radix-8 vs FFTW: %.3e\n", max_err);
     }
   }
 
