@@ -54,10 +54,14 @@ int main(int argc, char** argv) {
   fftw_plan p = fftw_plan_dft_1d(n, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
 
   if (do_verify) {
+    
+    // FFTW
+    fftw_execute(p);
+
+    // Radix-2
     initialize_data(x, fftw_in_flat, n);
 
     fft(x, re, im, n, 2, twiddle_re, twiddle_im, rho);
-    fftw_execute(p);
 
     double max_err = get_max_error(re, im, fftw_out_flat, n);
     printf("Max error FFT radix-2 vs FFTW: %.3e\n", max_err);
@@ -65,6 +69,7 @@ int main(int argc, char** argv) {
     free(rho);
     free_twiddles(twiddle_re, twiddle_im, t2);
 
+    // Radix-4
     if (n % 4 == 0) {
       int t4 = t2 >> 1;
       int* rho = precompute_index_reversal_permutation_r4(n);
@@ -83,6 +88,7 @@ int main(int argc, char** argv) {
       free_twiddles(twiddle_re, twiddle_im, t4);
     }
 
+    // Radix-8
     if (n % 8 == 0) {
       int t8 = t2 >> 2;
       int* rho = precompute_index_reversal_permutation_r8(n);
