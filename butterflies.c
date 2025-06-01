@@ -1,3 +1,5 @@
+#include <math.h>
+
 void apply_butterflies_r2(double* restrict re, double* restrict im, int n,
                           const double** twiddle_re, const double** twiddle_im) {
   int t = __builtin_ctz(n); // t = log2 n
@@ -262,10 +264,11 @@ void apply_butterflies_r8(double* restrict re, double* restrict im, int n,
     t++;
   } // t = log8 n
 
-  double a_re = 1.;
-  double a_im = 1.;
-  double b_re = 1.;
-  double b_im = 1.;
+  double tmp = 1. / sqrt(2.);
+  double a_re =  tmp;
+  double a_im = -tmp;
+  double b_re = -tmp;
+  double b_im = -tmp;
     
   for (int q = 0; q < t; ++q) {
     int k = 1 << (3 * (q + 1));  // k = 8^(q+1)
@@ -358,10 +361,11 @@ void apply_conjugate_butterflies_r8(double* restrict re, double* restrict im, in
     t++;
   } // t = log8 n
 
-  double a_re = 1.;
-  double a_im = 1.;
-  double b_re = 1.;
-  double b_im = 1.;
+  double tmp = 1. / sqrt(2.);
+  double a_re =  tmp;
+  double a_im = -tmp;
+  double b_re = -tmp;
+  double b_im = -tmp;
     
   for (int q = 0; q < t; ++q) {
     int k = 1 << (3 * (q + 1));  // k = 8^(q+1)
@@ -454,10 +458,11 @@ void apply_transposed_butterflies_r8(double* restrict re, double* restrict im, i
     t++;
   } // t = log8 n
 
-  double a_re = 1.;
-  double a_im = 1.;
-  double b_re = 1.;
-  double b_im = 1.;
+  double tmp = 1. / sqrt(2.);
+  double a_re =  tmp;
+  double a_im = -tmp;
+  double b_re = -tmp;
+  double b_im = -tmp;
     
   for (int q = 0; q < t; ++q) {
     int k = 1 << (3 * (q + 1));  // k = 8^(q+1)
