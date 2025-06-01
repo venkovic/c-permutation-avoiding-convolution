@@ -17,7 +17,7 @@ void fft(double complex* x, double* restrict re, double* restrict im, int n,
     apply_butterflies_r4(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
   }
   else if (r == 8) {
-    //apply_butterflies_r8(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
+    apply_butterflies_r8(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
   }
 }
 
@@ -30,6 +30,6 @@ void ufft(double* restrict re, double* restrict im, int n,
     apply_butterflies_r4(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
   }
   else if (r == 8) {
-    //apply_butterflies_r8(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
+    apply_butterflies_r8(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
   }
 }
