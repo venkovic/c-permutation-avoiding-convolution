@@ -105,13 +105,16 @@ int main(int argc, char** argv) {
   if (do_bench) {
     struct timespec start, end;
 
+    // Radix-2
+    
     // Warm-up
     initialize_data(x, fftw_in_flat, n);
     fft(x, re, im, n, 2, twiddle_re, twiddle_im, rho);
-    fftw_execute(p);
-
-    // Timed FFT
-    double total_fft = 0.0, total_perm = 0.0, total_ufft = 0.0, total_fftw = 0.0;
+    apply_permutation(x, n, rho);
+    ufft(re, im, n, 2, twiddle_re, twiddle_im);
+    
+    // Timing runs
+    double total_fft = 0., total_perm = 0., total_ufft = 0.;
     for (int t = 0; t < timing_runs; ++t) {
       initialize_data(x, fftw_in_flat, n);
 
@@ -129,6 +132,112 @@ int main(int argc, char** argv) {
       ufft(re, im, n, 2, twiddle_re, twiddle_im);
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_ufft += time_diff(start, end);
+    }
+
+    printf("Average radix-2 FFT time:            %.6f seconds\n", total_fft / timing_runs);
+    printf("Average radix-2 permutation time:    %.6f seconds\n", total_perm / timing_runs);
+    printf("Average radix-2 unordered FFT time:  %.6f seconds\n", total_ufft / timing_runs);
+    
+    // Clean-up
+    free(rho);
+    free_twiddles(twiddle_re, twiddle_im, t2);  
+
+    // Radix-4
+    if (n % 4 == 0) {
+      int t4 = t2 >> 1;
+      int* rho = precompute_index_reversal_permutation_r4(n);
+      double** twiddle_re, **twiddle_im;
+      precompute_twiddles_r4(n, &twiddle_re, &twiddle_im);
+          
+      // Warm-up
+      initialize_data(x, fftw_in_flat, n);
+      fft(x, re, im, n, 4, twiddle_re, twiddle_im, rho);
+      apply_permutation(x, n, rho);
+      ufft(re, im, n, 4, twiddle_re, twiddle_im);
+
+      // Timing runs
+      total_fft = 0., total_perm = 0., total_ufft = 0.;
+      for (int t = 0; t < timing_runs; ++t) {
+        initialize_data(x, fftw_in_flat, n);
+
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        fft(x, re, im, n, 4, twiddle_re, twiddle_im, rho);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        total_fft += time_diff(start, end);
+
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        apply_permutation(x, n, rho);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        total_perm += time_diff(start, end);
+
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        ufft(re, im, n, 4, twiddle_re, twiddle_im);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        total_ufft += time_diff(start, end);
+      }
+
+      printf("Average radix-4 FFT time:            %.6f seconds\n", total_fft / timing_runs);
+      printf("Average radix-4 permutation time:    %.6f seconds\n", total_perm / timing_runs);
+      printf("Average radix-4 unordered FFT time:  %.6f seconds\n", total_ufft / timing_runs);
+        
+      // Clean-up
+      free(rho);
+      free_twiddles(twiddle_re, twiddle_im, t4); 
+    }
+
+    // Radix-8
+    if (n % 8 == 0) {
+      int t8 = t2 >> 2;
+      int* rho = precompute_index_reversal_permutation_r8(n);
+      double** twiddle_re, **twiddle_im;
+      precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
+          
+      // Warm-up
+      initialize_data(x, fftw_in_flat, n);
+      fft(x, re, im, n, 8, twiddle_re, twiddle_im, rho);
+      apply_permutation(x, n, rho);
+      ufft(re, im, n, 8, twiddle_re, twiddle_im);
+
+      // Timing runs
+      total_fft = 0., total_perm = 0., total_ufft = 0.;
+      for (int t = 0; t < timing_runs; ++t) {
+        initialize_data(x, fftw_in_flat, n);
+
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        fft(x, re, im, n, 8, twiddle_re, twiddle_im, rho);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        total_fft += time_diff(start, end);
+
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        apply_permutation(x, n, rho);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        total_perm += time_diff(start, end);
+
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        ufft(re, im, n, 8, twiddle_re, twiddle_im);
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        total_ufft += time_diff(start, end);
+      }
+
+      printf("Average radix-8 FFT time:            %.6f seconds\n", total_fft / timing_runs);
+      printf("Average radix-8 permutation time:    %.6f seconds\n", total_perm / timing_runs);
+      printf("Average radix-8 unordered FFT time:  %.6f seconds\n", total_ufft / timing_runs);
+    
+      // Clean-up
+      free(rho);
+      free_twiddles(twiddle_re, twiddle_im, t8); 
+    }
+
+    // FFTW
+
+    // Warm-up
+    initialize_data(x, fftw_in_flat, n);
+    fftw_execute(p);
+
+    // Timing runs
+    double total_fftw = 0.;
+    for (int t = 0; t < timing_runs; ++t) {
+      initialize_data(x, fftw_in_flat, n);
 
       clock_gettime(CLOCK_MONOTONIC, &start);
       fftw_execute(p);
@@ -136,16 +245,10 @@ int main(int argc, char** argv) {
       total_fftw += time_diff(start, end);
     }
 
-    printf("Average FFT time:            %.6f seconds\n", total_fft / timing_runs);
-    printf("Average permutation time:    %.6f seconds\n", total_perm / timing_runs);
-    printf("Average Unordered FFT time:  %.6f seconds\n", total_ufft / timing_runs);
-    printf("Average FFTW time:           %.6f seconds\n", total_fftw / timing_runs);
-
-    free(rho);
-    free_twiddles(twiddle_re, twiddle_im, t2);
+    printf("Average FFTW time:                   %.6f seconds\n", total_fftw / timing_runs);
   }
 
-  // Cleanup
+  // Clean-up
   fftw_destroy_plan(p);
   fftw_free(fftw_in);
   fftw_free(fftw_out);
@@ -153,20 +256,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
