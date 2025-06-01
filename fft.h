@@ -46,6 +46,10 @@ void fft(double* restrict re, double* restrict im, int n, int r,
          double** twiddle_re, double** twiddle_im, const int* rho);
 void ufft(double* restrict re, double* restrict im, int n, 
           int r, double** twiddle_re, double** twiddle_im);
+void ifft(double* restrict re, double* restrict im, int n, int r, 
+          double** twiddle_re, double** twiddle_im, const int* rho);
+void uifft(double* restrict re, double* restrict im, int n, int r, 
+           double** twiddle_re, double** twiddle_im, const int* rho);
 
 // In convolution.c
 
