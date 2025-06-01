@@ -72,3 +72,15 @@ void apply_permutation(double complex* x, int n, const int* rho) {
     }
   }
 }
+
+void apply_permutation_split(double* restrict re, double* restrict im, 
+                             int n, const int* rho) {
+  for (int j = 0; j < n; ++j) {
+    int r = rho[j];
+    if (j < r) {
+      double tmp_re = re[j],tmp_im = im[j];
+      re[j] = re[r], im[j] = im[r];
+      re[r] = tmp_re, im[r] = tmp_im;
+    }
+  }
+}

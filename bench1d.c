@@ -40,7 +40,6 @@ int main(int argc, char** argv) {
   int n = 1 << t2; // n = 2^t2
 
   // Allocate memory
-  double complex* x  = malloc(n * sizeof(double complex));
   double* re  = malloc(n * sizeof(double));
   double* im  = malloc(n * sizeof(double));
   fftw_complex* fftw_in  = fftw_malloc(n * sizeof(fftw_complex));
@@ -54,14 +53,13 @@ int main(int argc, char** argv) {
   fftw_plan p = fftw_plan_dft_1d(n, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
 
   if (do_verify) {
+    initialize_data_split(re, im, fftw_in_flat, n);
     
     // FFTW
     fftw_execute(p);
 
     // Radix-2
-    initialize_data(x, fftw_in_flat, n);
-
-    fft(x, re, im, n, 2, twiddle_re, twiddle_im, rho);
+    fft(re, im, n, 2, twiddle_re, twiddle_im, rho);
 
     double max_err = get_max_error(re, im, fftw_out_flat, n);
     printf("Max error FFT radix-2 vs FFTW: %.3e\n", max_err);
@@ -70,15 +68,15 @@ int main(int argc, char** argv) {
     free_twiddles(twiddle_re, twiddle_im, t2);
 
     // Radix-4
-    if (n % 4 == 0) {
+    if (supports_radix_4(t2)) {
       int t4 = t2 >> 1;
       int* rho = precompute_index_reversal_permutation_r4(n);
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r4(n, &twiddle_re, &twiddle_im);
           
-      initialize_data(x, fftw_in_flat, n);
+      initialize_data_split(re, im, fftw_in_flat, n);
         
-      fft(x, re, im, n, 4, twiddle_re, twiddle_im, rho);
+      fft(re, im, n, 4, twiddle_re, twiddle_im, rho);
       fftw_execute(p);
 
       max_err = get_max_error(re, im, fftw_out_flat, n);
@@ -89,15 +87,15 @@ int main(int argc, char** argv) {
     }
 
     // Radix-8
-    if (n % 8 == 0) {
+    if (supports_radix_8(t2)) {
       int t8 = t2 >> 2;
       int* rho = precompute_index_reversal_permutation_r8(n);
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
-          
-      initialize_data(x, fftw_in_flat, n);
+
+      initialize_data_split(re, im, fftw_in_flat, n);
         
-      fft(x, re, im, n, 8, twiddle_re, twiddle_im, rho);
+      fft(re, im, n, 8, twiddle_re, twiddle_im, rho);
       fftw_execute(p);
 
       max_err = get_max_error(re, im, fftw_out_flat, n);
@@ -114,23 +112,23 @@ int main(int argc, char** argv) {
     // Radix-2
     
     // Warm-up
-    initialize_data(x, fftw_in_flat, n);
-    fft(x, re, im, n, 2, twiddle_re, twiddle_im, rho);
-    apply_permutation(x, n, rho);
+    initialize_data_split(re, im, fftw_in_flat, n);
+    fft(re, im, n, 2, twiddle_re, twiddle_im, rho);
+    apply_permutation_split(re, im, n, rho);
     ufft(re, im, n, 2, twiddle_re, twiddle_im);
     
     // Timing runs
     double total_fft = 0., total_perm = 0., total_ufft = 0.;
     for (int t = 0; t < timing_runs; ++t) {
-      initialize_data(x, fftw_in_flat, n);
+      initialize_data_split(re, im, fftw_in_flat, n);
 
       clock_gettime(CLOCK_MONOTONIC, &start);
-      fft(x, re, im, n, 2, twiddle_re, twiddle_im, rho);
+      fft(re, im, n, 2, twiddle_re, twiddle_im, rho);
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_fft += time_diff(start, end);
 
       clock_gettime(CLOCK_MONOTONIC, &start);
-      apply_permutation(x, n, rho);
+      apply_permutation_split(re, im, n, rho);
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_perm += time_diff(start, end);
 
@@ -149,30 +147,30 @@ int main(int argc, char** argv) {
     free_twiddles(twiddle_re, twiddle_im, t2);  
 
     // Radix-4
-    if (n % 4 == 0) {
+    if (supports_radix_4(t2)) {
       int t4 = t2 >> 1;
       int* rho = precompute_index_reversal_permutation_r4(n);
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r4(n, &twiddle_re, &twiddle_im);
           
       // Warm-up
-      initialize_data(x, fftw_in_flat, n);
-      fft(x, re, im, n, 4, twiddle_re, twiddle_im, rho);
-      apply_permutation(x, n, rho);
+      initialize_data_split(re, im, fftw_in_flat, n);
+      fft(re, im, n, 4, twiddle_re, twiddle_im, rho);
+      apply_permutation_split(re, im, n, rho);
       ufft(re, im, n, 4, twiddle_re, twiddle_im);
 
       // Timing runs
       total_fft = 0., total_perm = 0., total_ufft = 0.;
       for (int t = 0; t < timing_runs; ++t) {
-        initialize_data(x, fftw_in_flat, n);
+        initialize_data_split(re, im, fftw_in_flat, n);
 
         clock_gettime(CLOCK_MONOTONIC, &start);
-        fft(x, re, im, n, 4, twiddle_re, twiddle_im, rho);
+        fft(re, im, n, 4, twiddle_re, twiddle_im, rho);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_fft += time_diff(start, end);
 
         clock_gettime(CLOCK_MONOTONIC, &start);
-        apply_permutation(x, n, rho);
+        apply_permutation_split(re, im, n, rho);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_perm += time_diff(start, end);
 
@@ -192,30 +190,30 @@ int main(int argc, char** argv) {
     }
 
     // Radix-8
-    if (n % 8 == 0) {
+    if (supports_radix_8(t2)) {
       int t8 = t2 >> 2;
       int* rho = precompute_index_reversal_permutation_r8(n);
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
           
       // Warm-up
-      initialize_data(x, fftw_in_flat, n);
-      fft(x, re, im, n, 8, twiddle_re, twiddle_im, rho);
-      apply_permutation(x, n, rho);
+      initialize_data_split(re, im, fftw_in_flat, n);
+      fft(re, im, n, 8, twiddle_re, twiddle_im, rho);
+      apply_permutation_split(re, im, n, rho);
       ufft(re, im, n, 8, twiddle_re, twiddle_im);
 
       // Timing runs
       total_fft = 0., total_perm = 0., total_ufft = 0.;
       for (int t = 0; t < timing_runs; ++t) {
-        initialize_data(x, fftw_in_flat, n);
+        initialize_data_split(re, im, fftw_in_flat, n);
 
         clock_gettime(CLOCK_MONOTONIC, &start);
-        fft(x, re, im, n, 8, twiddle_re, twiddle_im, rho);
+        fft(re, im, n, 8, twiddle_re, twiddle_im, rho);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_fft += time_diff(start, end);
 
         clock_gettime(CLOCK_MONOTONIC, &start);
-        apply_permutation(x, n, rho);
+        apply_permutation_split(re, im, n, rho);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_perm += time_diff(start, end);
 
@@ -237,13 +235,13 @@ int main(int argc, char** argv) {
     // FFTW
 
     // Warm-up
-    initialize_data(x, fftw_in_flat, n);
+    initialize_data_split(re, im, fftw_in_flat, n);
     fftw_execute(p);
 
     // Timing runs
     double total_fftw = 0.;
     for (int t = 0; t < timing_runs; ++t) {
-      initialize_data(x, fftw_in_flat, n);
+      initialize_data_split(re, im, fftw_in_flat, n);
 
       clock_gettime(CLOCK_MONOTONIC, &start);
       fftw_execute(p);
@@ -258,7 +256,7 @@ int main(int argc, char** argv) {
   fftw_destroy_plan(p);
   fftw_free(fftw_in);
   fftw_free(fftw_out);
-  free(x); free(re); free(im); 
+  free(re); free(im); 
 
   return 0;
 }

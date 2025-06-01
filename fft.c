@@ -1,14 +1,8 @@
 #include "fft.h"
 
-void fft(double complex* x, double* restrict re, double* restrict im, int n, 
-         int r, double** twiddle_re, double** twiddle_im, const int* rho) {
-  apply_permutation(x, n, rho);
-
-  for (int i = 0; i < n; ++i) {
-    double complex z = ((double complex*)x)[i];
-    re[i] = creal(z);
-    im[i] = cimag(z);
-  }
+void fft(double* restrict re, double* restrict im, int n, int r, 
+         double** twiddle_re, double** twiddle_im, const int* rho) {
+  apply_permutation_split(re, im, n, rho);
 
   if (r == 2) {
     apply_butterflies_r2(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
