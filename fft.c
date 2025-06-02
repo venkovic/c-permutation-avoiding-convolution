@@ -46,8 +46,8 @@ void ifft(double* restrict re, double* restrict im, int n, int r,
     re[i] /= n, im[i] /= n;
 }
 
-void uifft(double* restrict re, double* restrict im, int n, int r, 
-           double** twiddle_re, double** twiddle_im, const int* rho) {
+void uifft(double* restrict re, double* restrict im, int n, 
+           int r, double** twiddle_re, double** twiddle_im) {
 
   if (r == 2) {
     apply_conjugate_butterflies_r2(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);

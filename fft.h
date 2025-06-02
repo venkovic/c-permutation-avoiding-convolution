@@ -41,6 +41,7 @@ int* precompute_index_reversal_permutation_r8(int n);
 void apply_permutation(double complex* x, int n, const int* rho);
 void apply_permutation_split(double* restrict re, double* restrict im, 
                              int n, const int* rho);
+
 // In fft.c
 void fft(double* restrict re, double* restrict im, int n, int r, 
          double** twiddle_re, double** twiddle_im, const int* rho);
@@ -48,8 +49,8 @@ void ufft(double* restrict re, double* restrict im, int n,
           int r, double** twiddle_re, double** twiddle_im);
 void ifft(double* restrict re, double* restrict im, int n, int r, 
           double** twiddle_re, double** twiddle_im, const int* rho);
-void uifft(double* restrict re, double* restrict im, int n, int r, 
-           double** twiddle_re, double** twiddle_im, const int* rho);
+void uifft(double* restrict re, double* restrict im, int n, 
+           int r, double** twiddle_re, double** twiddle_im);
 
 // In convolution.c
 
