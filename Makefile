@@ -3,19 +3,25 @@ CC = gcc
 CFLAGS = -O3 -ffast-math -funroll-loops -Wall -Wextra
 LDFLAGS = -lfftw3 -lm
 
-# Project files
-SRC = twiddle_factors.c butterflies.c index_reversals.c fft.c convolution.c misc.c bench1d.c
-OBJ = $(SRC:.c=.o)
+# Common source files (without the main files)
+COMMON_SRC = twiddle_factors.c butterflies.c index_reversals.c fft.c convolution.c misc.c
+COMMON_OBJ = $(COMMON_SRC:.c=.o)
 DEPS = fft.h
 
-# Output executable
-TARGET = bench1d
+# Executables
+TARGET1 = bench1d_forward_fft
+TARGET2 = bench1d_backward_fft
+TARGETS = $(TARGET1) $(TARGET2)
 
-# Default rule
-all: $(TARGET)
+# Default rule - build both executables
+all: $(TARGETS)
 
-# Link the object files into the final executable
-$(TARGET): $(OBJ)
+# Build forward FFT benchmark
+$(TARGET1): $(COMMON_OBJ) bench1d_forward_fft.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build backward FFT benchmark
+$(TARGET2): $(COMMON_OBJ) bench1d_backward_fft.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Compile .c to .o
@@ -24,8 +30,21 @@ $(TARGET): $(OBJ)
 
 # Clean rule
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(COMMON_OBJ) bench1d_forward_fft.o bench1d_backward_fft.o $(TARGETS)
 
-# Run the benchmark
-run: $(TARGET)
-	./$(TARGET)
+# Run benchmarks
+run-forward: $(TARGET1)
+	./$(TARGET1)
+
+run-backward: $(TARGET2)
+	./$(TARGET2)
+
+run-both: $(TARGETS)
+	./$(TARGET1)
+	./$(TARGET2)
+
+# Individual targets (useful for building just one)
+forward: $(TARGET1)
+backward: $(TARGET2)
+
+.PHONY: all clean run-forward run-backward run-both forward backward
