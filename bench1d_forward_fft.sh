@@ -99,7 +99,7 @@ done
 
 # Run the actual benchmark
 echo -e "${BLUE}Running benchmark with -t $T_VALUE -r $RUNS...${NC}"
-sudo nice -n -20 taskset -c 0 ./bench1d bench -t $T_VALUE -r $RUNS $BENCHMARK_ARGS
+sudo nice -n -20 taskset -c 0 ./bench1d_forward_fft bench -t $T_VALUE -r $RUNS $BENCHMARK_ARGS
 
 echo ""
 echo -e "${GREEN}Benchmark complete!${NC}"
