@@ -149,8 +149,8 @@ echo "Parameters: -t $T_VALUE -r $RUNS"
 echo ""
 
 # Check if benchmark exists
-if [ ! -f "./bench1d" ]; then
-    echo -e "${RED}Error: ./bench1d not found${NC}"
+if [ ! -f "./bench1d_forward_fft" ]; then
+    echo -e "${RED}Error: ./bench1d_forward_fft not found${NC}"
     echo "Please update the script with the correct benchmark executable name"
     exit 1
 fi
@@ -174,7 +174,7 @@ echo -e "${YELLOW}Monitoring during benchmark:${NC}"
 monitor_pid=$!
 
 # Run the benchmark
-timeout 60 sudo nice -n -20 taskset -c 0 ./bench1d bench -t $T_VALUE -r $RUNS
+timeout 60 sudo nice -n -20 taskset -c 0 ./bench1d_forward_fft bench -t $T_VALUE -r $RUNS
 
 # Stop monitoring
 kill $monitor_pid 2>/dev/null
