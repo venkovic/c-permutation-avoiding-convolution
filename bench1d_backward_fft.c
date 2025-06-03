@@ -249,6 +249,10 @@ int main(int argc, char** argv) {
     // Warm-up
     initialize_data_split(re, im, fftw_in_flat, n);
     fftw_execute(p);
+    for (int i = 0; i < n; i++) {
+      fftw_out_flat[2 * i]     /= n;
+      fftw_out_flat[2 * i + 1] /= n;
+    }
 
     // Timing runs
     double total_fftw = 0.;
@@ -257,6 +261,10 @@ int main(int argc, char** argv) {
 
       clock_gettime(CLOCK_MONOTONIC, &start);
       fftw_execute(p);
+      for (int i = 0; i < n; i++) {
+        fftw_out_flat[2 * i]     /= n;
+        fftw_out_flat[2 * i + 1] /= n;
+      }
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_fftw += time_diff(start, end);
     }
