@@ -11,7 +11,8 @@ DEPS = fft.h
 # Executables
 TARGET1 = bench1d_forward_fft
 TARGET2 = bench1d_backward_fft
-TARGETS = $(TARGET1) $(TARGET2)
+TARGET3 = bench1d_convolution
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3)
 
 # Default rule - build both executables
 all: $(TARGETS)
@@ -24,13 +25,17 @@ $(TARGET1): $(COMMON_OBJ) bench1d_forward_fft.o
 $(TARGET2): $(COMMON_OBJ) bench1d_backward_fft.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+# Build convolution benchmark
+$(TARGET3): $(COMMON_OBJ) bench1d_convolution.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 # Compile .c to .o
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean rule
 clean:
-	rm -f $(COMMON_OBJ) bench1d_forward_fft.o bench1d_backward_fft.o $(TARGETS)
+	rm -f $(COMMON_OBJ) bench1d_forward_fft.o bench1d_backward_fft.o bench1d_convolution.o $(TARGETS)
 
 # Run benchmarks
 run-forward: $(TARGET1)
@@ -39,12 +44,17 @@ run-forward: $(TARGET1)
 run-backward: $(TARGET2)
 	./$(TARGET2)
 
-run-both: $(TARGETS)
+run-convolution: $(TARGET3)
+	./$(TARGET3)
+
+run-all: $(TARGETS)
 	./$(TARGET1)
 	./$(TARGET2)
+	./$(TARGET3)
 
 # Individual targets (useful for building just one)
 forward: $(TARGET1)
 backward: $(TARGET2)
+convolution: $(TARGET3)
 
-.PHONY: all clean run-forward run-backward run-both forward backward
+.PHONY: all clean run-forward run-backward run-convolution run-all forward backward convolution
