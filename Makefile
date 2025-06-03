@@ -4,7 +4,7 @@ CFLAGS = -O3 -ffast-math -funroll-loops -Wall -Wextra
 LDFLAGS = -lfftw3 -lm
 
 # Common source files (without the main files)
-COMMON_SRC = twiddle_factors.c butterflies.c butterflies_2d.c index_reversals.c index_reversals_2d.c fft.c fft_2d.c convolution.c convolution_2d.c misc.c
+COMMON_SRC = twiddle_factors.c butterflies.c butterflies_2d.c butterflies_3d.c index_reversals.c index_reversals_2d.c index_reversals_3d.c fft.c fft_2d.c fft_3d.c convolution.c convolution_2d.c convolution_3d.c misc.c
 COMMON_OBJ = $(COMMON_SRC:.c=.o)
 DEPS = fft.h
 

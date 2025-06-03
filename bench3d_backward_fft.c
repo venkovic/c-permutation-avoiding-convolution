@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
   double* fftw_in_flat  = (double*)fftw_in;
   double* fftw_out_flat = (double*)fftw_out;
 
-  int* rho = precompute_index_reversal_permutation_r2_2d(n1, n2);
+  int* rho = precompute_index_reversal_permutation_r2_3d(n1, n2, n3);
   double** twiddle_re1, **twiddle_im1;
   double** twiddle_re2, **twiddle_im2;
   double** twiddle_re3, **twiddle_im3;
@@ -193,7 +193,7 @@ int main(int argc, char** argv) {
         total_perm += time_diff(start, end);
 
         clock_gettime(CLOCK_MONOTONIC, &start);
-        uifft_3d(re, im, n1, n2, 4, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3);
+        uifft_3d(re, im, n1, n2, n3, 4, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_ufft += time_diff(start, end);
       }

@@ -162,6 +162,7 @@ int main(int argc, char** argv) {
       free(rho);
       free_twiddles(twiddle_re1, twiddle_im1, t4_1);
       free_twiddles(twiddle_re2, twiddle_im2, t4_2);
+      free_twiddles(twiddle_re3, twiddle_im3, t4_3);
     }
   }
 
