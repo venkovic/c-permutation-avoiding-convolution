@@ -45,6 +45,8 @@ void apply_permutation_split(double* restrict re, double* restrict im,
 // In fft.c
 void fft(double* restrict re, double* restrict im, int n, int r, 
          double** twiddle_re, double** twiddle_im, const int* rho);
+void fft2(double* restrict re, double* restrict im, int n, int r, 
+          double** twiddle_re, double** twiddle_im, const int* rho);
 void ufft(double* restrict re, double* restrict im, int n, 
           int r, double** twiddle_re, double** twiddle_im);
 void ifft(double* restrict re, double* restrict im, int n, int r, 
@@ -53,12 +55,19 @@ void uifft(double* restrict re, double* restrict im, int n,
            int r, double** twiddle_re, double** twiddle_im);
 
 // In convolution.c
+void fft_based_convolution(double* restrict re, double* restrict im, int n, int r, 
+                           double** twiddle_re, double** twiddle_im, const int* rho, 
+                           double* restrict g_re, double* restrict g_im);
+void permutation_avoiding_convolution(double* restrict re, double* restrict im, int n, 
+                                      int r, double** twiddle_re, double** twiddle_im, 
+                                      double* restrict Pg_re, double* restrict Pg_im);
 
 // In misc.c
 double time_diff(struct timespec start, struct timespec end);
-double get_max_error(double *re, double *im, double *fftw_out_flat, int n);
+double get_max_error(double *re, double *im, double *fftw_flat, int n);
 void initialize_data(double complex *x, double *fftw_in_flat, int n);
 void initialize_data_split(double *re, double *im, double *fftw_in_flat, int n);
+void initialize_filter(double *g_re, double *g_im, int n);
 bool supports_radix_4(int t2);
 bool supports_radix_8(int t2);
 

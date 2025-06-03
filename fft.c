@@ -15,6 +15,21 @@ void fft(double* restrict re, double* restrict im, int n, int r,
   }
 }
 
+void fft2(double* restrict re, double* restrict im, int n, int r, 
+          double** twiddle_re, double** twiddle_im, const int* rho) {
+  if (r == 2) {
+    apply_transposed_butterflies_r2(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
+  }
+  else if (r == 4) {
+    apply_transposed_butterflies_r4(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
+  }
+  else if (r == 8) {
+    apply_transposed_butterflies_r8(re, im, n, (const double**)twiddle_re, (const double**)twiddle_im);
+  }
+
+  apply_permutation_split(re, im, n, rho);
+}
+
 void ufft(double* restrict re, double* restrict im, int n, 
           int r, double** twiddle_re, double** twiddle_im) {
   if (r == 2) {
