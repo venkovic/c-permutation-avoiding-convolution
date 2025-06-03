@@ -15,7 +15,10 @@ TARGET3 = bench1d_convolution
 TARGET4 = bench2d_forward_fft
 TARGET5 = bench2d_backward_fft
 TARGET6 = bench2d_convolution
-TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6)
+TARGET7 = bench3d_forward_fft
+TARGET8 = bench3d_backward_fft
+TARGET9 = bench3d_convolution
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET8) $(TARGET9)
 
 # Default rule - build both executables
 all: $(TARGETS)
@@ -44,13 +47,25 @@ $(TARGET5): $(COMMON_OBJ) bench2d_backward_fft.o
 $(TARGET6): $(COMMON_OBJ) bench2d_convolution.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+# Build 3D forward FFT benchmark
+$(TARGET7): $(COMMON_OBJ) bench3d_forward_fft.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build 3D backward FFT benchmark
+$(TARGET8): $(COMMON_OBJ) bench3d_backward_fft.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build 3D convolution benchmark
+$(TARGET9): $(COMMON_OBJ) bench3d_convolution.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 # Compile .c to .o
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean rule
 clean:
-	rm -f $(COMMON_OBJ) bench1d_forward_fft.o bench1d_backward_fft.o bench1d_convolution.o bench2d_forward_fft.o bench2d_backward_fft.o bench2d_convolution.o $(TARGETS)
+	rm -f $(COMMON_OBJ) bench1d_forward_fft.o bench1d_backward_fft.o bench1d_convolution.o bench2d_forward_fft.o bench2d_backward_fft.o bench2d_convolution.o bench3d_forward_fft.o bench3d_backward_fft.o bench3d_convolution.o $(TARGETS)
 
 # Run benchmarks
 run-forward: $(TARGET1)
@@ -71,6 +86,15 @@ run-backward-2d: $(TARGET5)
 run-convolution-2d: $(TARGET6)
 	./$(TARGET6)
 
+run-forward-3d: $(TARGET7)
+	./$(TARGET7)
+
+run-backward-3d: $(TARGET8)
+	./$(TARGET8)
+
+run-convolution-3d: $(TARGET9)
+	./$(TARGET9)
+
 run-all: $(TARGETS)
 	./$(TARGET1)
 	./$(TARGET2)
@@ -78,6 +102,9 @@ run-all: $(TARGETS)
 	./$(TARGET4)
 	./$(TARGET5)
 	./$(TARGET6)
+	./$(TARGET7)
+	./$(TARGET8)
+	./$(TARGET9)
 
 # Individual targets (useful for building just one)
 forward: $(TARGET1)
@@ -86,5 +113,8 @@ convolution: $(TARGET3)
 forward-2d: $(TARGET4)
 backward-2d: $(TARGET5)
 convolution-2d: $(TARGET6)
+forward-3d: $(TARGET7)
+backward-3d: $(TARGET8)
+convolution-3d: $(TARGET9)
 
-.PHONY: all clean run-forward run-backward run-convolution run-forward-2d run-backward-2d run-convolution-2d run-all forward backward convolution forward-2d backward-2d convolution-2d
+.PHONY: all clean run-forward run-backward run-convolution run-forward-2d run-backward-2d run-convolution-2d run-forward-3d run-backward-3d run-convolution-3d run-all forward backward convolution forward-2d backward-2d convolution-2d forward-3d backward-3d convolution-3d
