@@ -62,7 +62,7 @@ void apply_transposed_butterflies_r2(double* restrict re, double* restrict im, i
                                      const double** twiddle_re, const double** twiddle_im) {
   int t = __builtin_ctz(n); // t = log2 n
 
-  for (int q = 0; q < t; ++q) {
+  for (int q = t - 1; q >= 0; --q) {
     int k = 1 << (q + 1);
     int ell = k / 2;
     int nb = n / k;
@@ -75,8 +75,11 @@ void apply_transposed_butterflies_r2(double* restrict re, double* restrict im, i
         double tau_re = re[i + ell];
         double tau_im = im[i + ell];
 
-        re[i + ell] = twiddle_re[q][j] * (re[i] - tau_re) - twiddle_im[q][j] * (im[i] - tau_im);
-        im[i + ell] = twiddle_re[q][j] * (im[i] - tau_im) + twiddle_im[q][j] * (re[i] - tau_re);
+        double re_m_tau_re = re[i] - tau_re;
+        double im_m_tau_im = im[i] - tau_im;
+
+        re[i + ell] = twiddle_re[q][j] * re_m_tau_re - twiddle_im[q][j] * im_m_tau_im;
+        im[i + ell] = twiddle_re[q][j] * im_m_tau_im + twiddle_im[q][j] * re_m_tau_re;
         re[i]       = re[i] + tau_re;
         im[i]       = im[i] + tau_im;
       }
@@ -211,7 +214,7 @@ void apply_transposed_butterflies_r4(double* restrict re, double* restrict im, i
     t++;
   } // t = log4 n
     
-  for (int q = 0; q < t; ++q) {
+  for (int q = t - 1; q >= 0; --q) {
     int k = 1 << (2 * (q + 1));  // k = 4^(q+1)
     int ell = k / 4;
     int nb = n / k;
@@ -230,23 +233,33 @@ void apply_transposed_butterflies_r4(double* restrict re, double* restrict im, i
         double z4_re = re[i + 3 * ell];
         double z4_im = im[i + 3 * ell];
 
+        double z1_re_m_z3_re = z1_re - z3_re;
+        double z1_im_m_z3_im = z1_im - z3_im;
+        double z2_re_m_z4_re = z2_re - z4_re;
+        double z2_im_m_z4_im = z2_im - z4_im;
+
         double tau1_re = z1_re + z3_re;
         double tau1_im = z1_im + z3_im;
-        double tau2_re = twiddle_re[q][j] * (z1_re - z3_re) - twiddle_im[q][j] * (z1_im - z3_im);
-        double tau2_im = twiddle_re[q][j] * (z1_im - z3_im) + twiddle_im[q][j] * (z1_re - z3_re);
+        double tau2_re = twiddle_re[q][j] * z1_re_m_z3_re - twiddle_im[q][j] * z1_im_m_z3_im;
+        double tau2_im = twiddle_re[q][j] * z1_im_m_z3_im + twiddle_im[q][j] * z1_re_m_z3_re;
         double tau3_re = z2_re + z4_re;
         double tau3_im = z2_im + z4_im;  
-        double tau4_re = twiddle_re[q][j] * (z2_re - z4_re) - twiddle_im[q][j] * (z2_im - z4_im);
-        double tau4_im = twiddle_re[q][j] * (z2_im - z4_im) + twiddle_im[q][j] * (z2_re - z4_re);
+        double tau4_re = twiddle_re[q][j] * z2_re_m_z4_re - twiddle_im[q][j] * z2_im_m_z4_im;
+        double tau4_im = twiddle_re[q][j] * z2_im_m_z4_im + twiddle_im[q][j] * z2_re_m_z4_re;
+
+        double tau1_re_m_tau3_re = tau1_re - tau3_re;
+        double tau1_im_m_tau3_im = tau1_im - tau3_im;
+        double tau2_re_m_tau4_im = tau2_re - tau4_im;
+        double tau2_im_p_tau4_re = tau2_im + tau4_re;
 
         re[i]           = tau1_re + tau3_re;
         im[i]           = tau1_im + tau3_im;
         re[i + ell]     = tau2_re + tau4_im;
         im[i + ell]     = tau2_im - tau4_re;
-        re[i + 2 * ell] = twiddle_re[q][j + ell] * (tau1_re - tau3_re) - twiddle_im[q][j + ell] * (tau1_im - tau3_im);
-        im[i + 2 * ell] = twiddle_re[q][j + ell] * (tau1_im - tau3_im) + twiddle_im[q][j + ell] * (tau1_re - tau3_re);
-        re[i + 3 * ell] = twiddle_re[q][j + ell] * (tau2_re - tau4_im) - twiddle_im[q][j + ell] * (tau2_im + tau4_re);
-        im[i + 3 * ell] = twiddle_re[q][j + ell] * (tau2_im + tau4_re) + twiddle_im[q][j + ell] * (tau2_re - tau4_im);
+        re[i + 2 * ell] = twiddle_re[q][j + ell] * tau1_re_m_tau3_re - twiddle_im[q][j + ell] * tau1_im_m_tau3_im;
+        im[i + 2 * ell] = twiddle_re[q][j + ell] * tau1_im_m_tau3_im + twiddle_im[q][j + ell] * tau1_re_m_tau3_re;
+        re[i + 3 * ell] = twiddle_re[q][j + ell] * tau2_re_m_tau4_im - twiddle_im[q][j + ell] * tau2_im_p_tau4_re;
+        im[i + 3 * ell] = twiddle_re[q][j + ell] * tau2_im_p_tau4_re + twiddle_im[q][j + ell] * tau2_re_m_tau4_im;
       }
     }
   }
@@ -355,8 +368,8 @@ void apply_butterflies_r8(double* restrict re, double* restrict im, int n,
         im[i + 3 * ell] = tau2_im + b_re_x_tau4_im + b_im_x_tau4_re + tau6_re + a_re_x_tau8_im + a_im_x_tau8_re;
         re[i + 4 * ell] = tau1_re - tau3_re + tau5_re - tau7_re;
         im[i + 4 * ell] = tau1_im - tau3_im + tau5_im - tau7_im;
-        re[i + 5 * ell] = tau2_re - a_re_x_tau4_re + a_im_x_tau4_im + tau6_im - b_re_x_tau8_re + b_im * tau8_im;
-        im[i + 5 * ell] = tau2_im - a_re_x_tau4_im - a_im_x_tau4_re - tau6_re - b_re_x_tau8_im - b_im * tau8_re;
+        re[i + 5 * ell] = tau2_re - a_re_x_tau4_re + a_im_x_tau4_im + tau6_im - b_re_x_tau8_re + b_im_x_tau8_im;
+        im[i + 5 * ell] = tau2_im - a_re_x_tau4_im - a_im_x_tau4_re - tau6_re - b_re_x_tau8_im - b_im_x_tau8_re;
         re[i + 6 * ell] = tau1_re - tau3_im - tau5_re + tau7_im;
         im[i + 6 * ell] = tau1_im + tau3_re - tau5_im - tau7_re;
         re[i + 7 * ell] = tau2_re - b_re_x_tau4_re + b_im_x_tau4_im - tau6_im - a_re_x_tau8_re + a_im_x_tau8_im;
@@ -442,22 +455,39 @@ void apply_conjugate_butterflies_r8(double* restrict re, double* restrict im, in
         double tau8_re = z4_re - z8_re;
         double tau8_im = z4_im - z8_im;
 
+        double a_re_x_tau4_re = a_re * tau4_re;
+        double a_re_x_tau4_im = a_re * tau4_im;
+        double a_im_x_tau4_re = a_im * tau4_re;
+        double a_im_x_tau4_im = a_im * tau4_im;
+        double a_re_x_tau8_re = a_re * tau8_re;
+        double a_re_x_tau8_im = a_re * tau8_im;
+        double a_im_x_tau8_re = a_im * tau8_re;
+        double a_im_x_tau8_im = a_im * tau8_im;
+        double b_re_x_tau4_re = b_re * tau4_re;
+        double b_re_x_tau4_im = b_re * tau4_im;
+        double b_im_x_tau4_re = b_im * tau4_re;
+        double b_im_x_tau4_im = b_im * tau4_im;
+        double b_re_x_tau8_re = b_re * tau8_re;
+        double b_re_x_tau8_im = b_re * tau8_im;
+        double b_im_x_tau8_re = b_im * tau8_re;
+        double b_im_x_tau8_im = b_im * tau8_im;
+
         re[i]           = tau1_re + tau3_re + tau5_re + tau7_re;
         im[i]           = tau1_im + tau3_im + tau5_im + tau7_im;        
-        re[i + ell]     = tau2_re + a_re * tau4_re + a_im * tau4_im - tau6_im + b_re * tau8_re + b_im * tau8_im;
-        im[i + ell]     = tau2_im + a_re * tau4_im - a_im * tau4_re + tau6_re + b_re * tau8_im - b_im * tau8_re;
+        re[i + ell]     = tau2_re + a_re_x_tau4_re + a_im_x_tau4_im - tau6_im + b_re_x_tau8_re + b_im_x_tau8_im;
+        im[i + ell]     = tau2_im + a_re_x_tau4_im - a_im_x_tau4_re + tau6_re + b_re_x_tau8_im - b_im_x_tau8_re;
         re[i + 2 * ell] = tau1_re - tau3_im - tau5_re + tau7_im;
         im[i + 2 * ell] = tau1_im + tau3_re - tau5_im - tau7_re;
-        re[i + 3 * ell] = tau2_re + b_re * tau4_re + b_im * tau4_im + tau6_im + a_re * tau8_re + a_im * tau8_im;
-        im[i + 3 * ell] = tau2_im + b_re * tau4_im - b_im * tau4_re - tau6_re + a_re * tau8_im - a_im * tau8_re;
+        re[i + 3 * ell] = tau2_re + b_re_x_tau4_re + b_im_x_tau4_im + tau6_im + a_re_x_tau8_re + a_im_x_tau8_im;
+        im[i + 3 * ell] = tau2_im + b_re_x_tau4_im - b_im_x_tau4_re - tau6_re + a_re_x_tau8_im - a_im_x_tau8_re;
         re[i + 4 * ell] = tau1_re - tau3_re + tau5_re - tau7_re;
         im[i + 4 * ell] = tau1_im - tau3_im + tau5_im - tau7_im;
-        re[i + 5 * ell] = tau2_re - a_re * tau4_re - a_im * tau4_im - tau6_im - b_re * tau8_re - b_im * tau8_im;
-        im[i + 5 * ell] = tau2_im - a_re * tau4_im + a_im * tau4_re + tau6_re - b_re * tau8_im + b_im * tau8_re;
+        re[i + 5 * ell] = tau2_re - a_re_x_tau4_re - a_im_x_tau4_im - tau6_im - b_re_x_tau8_re - b_im_x_tau8_im;
+        im[i + 5 * ell] = tau2_im - a_re_x_tau4_im + a_im_x_tau4_re + tau6_re - b_re_x_tau8_im + b_im_x_tau8_re;
         re[i + 6 * ell] = tau1_re + tau3_im - tau5_re - tau7_im;
         im[i + 6 * ell] = tau1_im - tau3_re - tau5_im + tau7_re;
-        re[i + 7 * ell] = tau2_re - b_re * tau4_re - b_im * tau4_im + tau6_im - a_re * tau8_re - a_im * tau8_im;
-        im[i + 7 * ell] = tau2_im - b_re * tau4_im + b_im * tau4_re - tau6_re - a_re * tau8_im + a_im * tau8_re;
+        re[i + 7 * ell] = tau2_re - b_re_x_tau4_re - b_im_x_tau4_im + tau6_im - a_re_x_tau8_re - a_im_x_tau8_im;
+        im[i + 7 * ell] = tau2_im - b_re_x_tau4_im + b_im_x_tau4_re - tau6_re - a_re_x_tau8_im + a_im_x_tau8_re;
       }
     }
   }
@@ -478,7 +508,7 @@ void apply_transposed_butterflies_r8(double* restrict re, double* restrict im, i
   double b_re = -tmp;
   double b_im = -tmp;
     
-  for (int q = 0; q < t; ++q) {
+  for (int q = t - 1; q >= 0; --q) {
     int k = 1 << (3 * (q + 1));  // k = 8^(q+1)
     int ell = k / 8;
     int nb = n / k;
@@ -505,45 +535,88 @@ void apply_transposed_butterflies_r8(double* restrict re, double* restrict im, i
         double z8_re = re[i + 7 * ell];
         double z8_im = im[i + 7 * ell];
 
+        double z1_re_m_z5_re = z1_re - z5_re;
+        double z1_im_m_z5_im = z1_im - z5_im;
+        double z2_re_m_z6_re = z2_re - z6_re;
+        double z2_im_m_z6_im = z2_im - z6_im;
+        double z3_re_m_z7_re = z3_re - z7_re;
+        double z3_im_m_z7_im = z3_im - z7_im;
+        double z4_re_m_z8_re = z4_re - z8_re;
+        double z4_im_m_z8_im = z4_im - z8_im;
+
         double tau1_re = z1_re + z5_re;
         double tau1_im = z1_im + z5_im;
-        double tau2_re = twiddle_re[q][j] * (z1_re - z5_re) - twiddle_im[q][j] * (z1_im - z5_im);
-        double tau2_im = twiddle_re[q][j] * (z1_im - z5_im) + twiddle_im[q][j] * (z1_re - z5_re);
+        double tau2_re = twiddle_re[q][j] * z1_re_m_z5_re - twiddle_im[q][j] * z1_im_m_z5_im;
+        double tau2_im = twiddle_re[q][j] * z1_im_m_z5_im + twiddle_im[q][j] * z1_re_m_z5_re;
         double tau3_re = z2_re + z6_re;
         double tau3_im = z2_im + z6_im;
-        double tau4_re = twiddle_re[q][j] * (z2_re - z6_re) - twiddle_im[q][j] * (z2_im - z6_im);
-        double tau4_im = twiddle_re[q][j] * (z2_im - z6_im) + twiddle_im[q][j] * (z2_re - z6_re);
+        double tau4_re = twiddle_re[q][j] * z2_re_m_z6_re - twiddle_im[q][j] * z2_im_m_z6_im;
+        double tau4_im = twiddle_re[q][j] * z2_im_m_z6_im + twiddle_im[q][j] * z2_re_m_z6_re;
         double tau5_re = z3_re + z7_re;
         double tau5_im = z3_im + z7_im;
-        double tau6_re = twiddle_re[q][j] * (z3_re - z7_re) - twiddle_im[q][j] * (z3_im - z7_im);
-        double tau6_im = twiddle_re[q][j] * (z3_im - z7_im) + twiddle_im[q][j] * (z3_re - z7_re);
+        double tau6_re = twiddle_re[q][j] * z3_re_m_z7_re - twiddle_im[q][j] * z3_im_m_z7_im;
+        double tau6_im = twiddle_re[q][j] * z3_im_m_z7_im + twiddle_im[q][j] * z3_re_m_z7_re;
         double tau7_re = z4_re + z8_re;
         double tau7_im = z4_im + z8_im;
-        double tau8_re = twiddle_re[q][j] * (z4_re - z8_re) - twiddle_im[q][j] * (z4_im - z8_im);
-        double tau8_im = twiddle_re[q][j] * (z4_im - z8_im) + twiddle_im[q][j] * (z4_re - z8_re);
+        double tau8_re = twiddle_re[q][j] * z4_re_m_z8_re - twiddle_im[q][j] * z4_im_m_z8_im;
+        double tau8_im = twiddle_re[q][j] * z4_im_m_z8_im + twiddle_im[q][j] * z4_re_m_z8_re;
 
-        re[i]           = tau1_re + tau3_re + tau5_re + tau7_re;
-        re[i]           = tau1_im + tau3_im + tau5_im + tau7_im;
-        re[i + ell]     = tau2_re + a_re * tau4_re - a_im * tau4_im + tau6_im + b_re * tau8_re - b_im * tau8_im;
-        im[i + ell]     = tau2_im + a_re * tau4_im + a_im * tau4_re - tau6_re + b_re * tau8_im + b_im * tau8_re;
-        re[i + 2 * ell] = twiddle_re[q][j + ell] * (tau1_re + tau3_im - tau5_re - tau7_im) - twiddle_im[q][j + ell] * (tau1_im - tau3_re - tau5_im + tau7_re);
-        im[i + 2 * ell] = twiddle_re[q][j + ell] * (tau1_im - tau3_re - tau5_im + tau7_re) + twiddle_im[q][j + ell] * (tau1_re + tau3_im - tau5_re - tau7_im);
-        re[i + 3 * ell] = twiddle_re[q][j + ell] * (tau2_re + b_re * tau4_re - b_im * tau4_im - tau6_im + a_re * tau8_re - a_im * tau8_im)
-                        - twiddle_im[q][j + ell] * (tau2_im + b_re * tau4_im + b_im * tau4_re + tau6_re + a_re * tau8_im + a_im * tau8_re);
-        im[i + 3 * ell] = twiddle_re[q][j + ell] * (tau2_im + b_re * tau4_im + b_im * tau4_re + tau6_re + a_re * tau8_im + a_im * tau8_re)
-                        + twiddle_im[q][j + ell] * (tau2_re + b_re * tau4_re - b_im * tau4_im - tau6_im + a_re * tau8_re - a_im * tau8_im);
-        re[i + 4 * ell] = twiddle_re[q][j + 3 * ell] * (tau1_re - tau3_re + tau5_re - tau7_re) - twiddle_im[q][j + 3 * ell] * (tau1_im - tau3_im + tau5_im - tau7_im);
-        im[i + 4 * ell] = twiddle_re[q][j + 3 * ell] * (tau1_im - tau3_im + tau5_im - tau7_im) + twiddle_im[q][j + 3 * ell] * (tau1_re - tau3_re + tau5_re - tau7_re);
-        re[i + 5 * ell] = twiddle_re[q][j + 3 * ell] * (tau2_re - a_re * tau4_re + a_im * tau4_im + tau6_im - b_re * tau8_re + b_im * tau8_im)
-                        - twiddle_im[q][j + 3 * ell] * (tau2_im - a_re * tau4_im - a_im * tau4_re - tau6_re - b_re * tau8_im - b_im * tau8_re);
-        im[i + 5 * ell] = twiddle_im[q][j + 3 * ell] * (tau2_re - a_re * tau4_re + a_im * tau4_im + tau6_im - b_re * tau8_re + b_im * tau8_im)
-                        + twiddle_re[q][j + 3 * ell] * (tau2_im - a_re * tau4_im - a_im * tau4_re - tau6_re - b_re * tau8_im - b_im * tau8_re);
-        re[i + 6 * ell] = twiddle_re[q][j + 5 * ell] * (tau1_re - tau3_im - tau5_re + tau7_im) - twiddle_im[q][j + 5 * ell] * (tau1_im + tau3_re - tau5_im - tau7_re);
-        im[i + 6 * ell] = twiddle_im[q][j + 5 * ell] * (tau1_re - tau3_im - tau5_re + tau7_im) + twiddle_re[q][j + 5 * ell] * (tau1_im + tau3_re - tau5_im - tau7_re);
-        re[i + 7 * ell] = twiddle_re[q][j + 5 * ell] * (tau2_re - b_re * tau4_re + b_im * tau4_im - tau6_im - a_re * tau8_re + a_im * tau8_im)
-                        - twiddle_im[q][j + 5 * ell] * (tau2_im - b_re * tau4_im - b_im * tau4_re + tau6_re - a_re * tau8_im - a_im * tau8_re);
-        im[i + 7 * ell] = twiddle_im[q][j + 5 * ell] * (tau2_re - b_re * tau4_re + b_im * tau4_im - tau6_im - a_re * tau8_re + a_im * tau8_im)
-                        + twiddle_re[q][j + 5 * ell] * (tau2_im - b_re * tau4_im - b_im * tau4_re + tau6_re - a_re * tau8_im - a_im * tau8_re);
+        double a_re_x_tau4_re = a_re * tau4_re;
+        double a_re_x_tau4_im = a_re * tau4_im;
+        double a_im_x_tau4_re = a_im * tau4_re;
+        double a_im_x_tau4_im = a_im * tau4_im;
+        double a_re_x_tau8_re = a_re * tau8_re;
+        double a_re_x_tau8_im = a_re * tau8_im;
+        double a_im_x_tau8_re = a_im * tau8_re;
+        double a_im_x_tau8_im = a_im * tau8_im;
+        double b_re_x_tau4_re = b_re * tau4_re;
+        double b_re_x_tau4_im = b_re * tau4_im;
+        double b_im_x_tau4_re = b_im * tau4_re;
+        double b_im_x_tau4_im = b_im * tau4_im;
+        double b_re_x_tau8_re = b_re * tau8_re;
+        double b_re_x_tau8_im = b_re * tau8_im;
+        double b_im_x_tau8_re = b_im * tau8_re;
+        double b_im_x_tau8_im = b_im * tau8_im;
+
+        double tau1_re_p_tau3_re_p_tau5_re_p_tau7_re = tau1_re + tau3_re + tau5_re + tau7_re;
+        double tau1_im_p_tau3_im_p_tau5_im_p_tau7_im = tau1_im + tau3_im + tau5_im + tau7_im;
+        double tau2_re_p_a_re_x_tau4_re_m_a_im_x_tau4_im_p_tau6_im_p_b_re_x_tau8_re_m_b_im_x_tau8_im = tau2_re + a_re_x_tau4_re - a_im_x_tau4_im + tau6_im + b_re_x_tau8_re - b_im_x_tau8_im;
+        double tau2_im_p_a_re_x_tau4_im_p_a_im_x_tau4_re_m_tau6_re_p_b_re_x_tau8_im_p_b_im_x_tau8_re = tau2_im + a_re_x_tau4_im + a_im_x_tau4_re - tau6_re + b_re_x_tau8_im + b_im_x_tau8_re;
+        double tau1_re_p_tau3_im_m_tau5_re_m_tau7_im = tau1_re + tau3_im - tau5_re - tau7_im;
+        double tau1_im_m_tau3_re_m_tau5_im_p_tau7_re = tau1_im - tau3_re - tau5_im + tau7_re;
+        double tau2_re_p_b_re_x_tau4_re_m_b_im_x_tau4_im_m_tau6_im_p_a_re_x_tau8_re_m_a_im_x_tau8_im = tau2_re + b_re_x_tau4_re - b_im_x_tau4_im - tau6_im + a_re_x_tau8_re - a_im_x_tau8_im;
+        double tau2_im_p_b_re_x_tau4_im_p_b_im_x_tau4_re_p_tau6_re_p_a_re_x_tau8_im_p_a_im_x_tau8_re = tau2_im + b_re_x_tau4_im + b_im_x_tau4_re + tau6_re + a_re_x_tau8_im + a_im_x_tau8_re;
+        double tau1_re_m_tau3_re_p_tau5_re_m_tau7_re = tau1_re - tau3_re + tau5_re - tau7_re;
+        double tau1_im_m_tau3_im_p_tau5_im_m_tau7_im = tau1_im - tau3_im + tau5_im - tau7_im;
+        double tau2_re_m_a_re_x_tau4_re_p_a_im_x_tau4_im_p_tau6_im_m_b_re_x_tau8_re_p_b_im_x_tau8_im = tau2_re - a_re_x_tau4_re + a_im_x_tau4_im + tau6_im - b_re_x_tau8_re + b_im_x_tau8_im;
+        double tau2_im_m_a_re_x_tau4_im_m_a_im_x_tau4_re_m_tau6_re_m_b_re_x_tau8_im_m_b_im_x_tau8_re = tau2_im - a_re_x_tau4_im - a_im_x_tau4_re - tau6_re - b_re_x_tau8_im - b_im_x_tau8_re;
+        double tau1_re_m_tau3_im_m_tau5_re_p_tau7_im = tau1_re - tau3_im - tau5_re + tau7_im;
+        double tau1_im_p_tau3_re_m_tau5_im_m_tau7_re = tau1_im + tau3_re - tau5_im - tau7_re;
+        double tau2_re_m_b_re_x_tau4_re_p_b_im_x_tau4_im_m_tau6_im_m_a_re_x_tau8_re_p_a_im_x_tau8_im = tau2_re - b_re_x_tau4_re + b_im_x_tau4_im - tau6_im - a_re_x_tau8_re + a_im_x_tau8_im;
+        double tau2_im_m_b_re_x_tau4_im_m_b_im_x_tau4_re_p_tau6_re_m_a_re_x_tau8_im_m_a_im_x_tau8_re = tau2_im - b_re_x_tau4_im - b_im_x_tau4_re + tau6_re - a_re_x_tau8_im - a_im_x_tau8_re;
+
+        re[i]           = tau1_re_p_tau3_re_p_tau5_re_p_tau7_re;
+        im[i]           = tau1_im_p_tau3_im_p_tau5_im_p_tau7_im;
+        re[i + ell]     = tau2_re_p_a_re_x_tau4_re_m_a_im_x_tau4_im_p_tau6_im_p_b_re_x_tau8_re_m_b_im_x_tau8_im;
+        im[i + ell]     = tau2_im_p_a_re_x_tau4_im_p_a_im_x_tau4_re_m_tau6_re_p_b_re_x_tau8_im_p_b_im_x_tau8_re;
+        re[i + 2 * ell] = twiddle_re[q][j + ell] * tau1_re_p_tau3_im_m_tau5_re_m_tau7_im - twiddle_im[q][j + ell] * tau1_im_m_tau3_re_m_tau5_im_p_tau7_re;
+        im[i + 2 * ell] = twiddle_re[q][j + ell] * tau1_im_m_tau3_re_m_tau5_im_p_tau7_re + twiddle_im[q][j + ell] * tau1_re_p_tau3_im_m_tau5_re_m_tau7_im;
+        re[i + 3 * ell] = twiddle_re[q][j + ell] * tau2_re_p_b_re_x_tau4_re_m_b_im_x_tau4_im_m_tau6_im_p_a_re_x_tau8_re_m_a_im_x_tau8_im
+                        - twiddle_im[q][j + ell] * tau2_im_p_b_re_x_tau4_im_p_b_im_x_tau4_re_p_tau6_re_p_a_re_x_tau8_im_p_a_im_x_tau8_re;
+        im[i + 3 * ell] = twiddle_re[q][j + ell] * tau2_im_p_b_re_x_tau4_im_p_b_im_x_tau4_re_p_tau6_re_p_a_re_x_tau8_im_p_a_im_x_tau8_re
+                        + twiddle_im[q][j + ell] * tau2_re_p_b_re_x_tau4_re_m_b_im_x_tau4_im_m_tau6_im_p_a_re_x_tau8_re_m_a_im_x_tau8_im;
+        re[i + 4 * ell] = twiddle_re[q][j + 3 * ell] * tau1_re_m_tau3_re_p_tau5_re_m_tau7_re - twiddle_im[q][j + 3 * ell] * tau1_im_m_tau3_im_p_tau5_im_m_tau7_im;
+        im[i + 4 * ell] = twiddle_re[q][j + 3 * ell] * tau1_im_m_tau3_im_p_tau5_im_m_tau7_im + twiddle_im[q][j + 3 * ell] * tau1_re_m_tau3_re_p_tau5_re_m_tau7_re;
+        re[i + 5 * ell] = twiddle_re[q][j + 3 * ell] * tau2_re_m_a_re_x_tau4_re_p_a_im_x_tau4_im_p_tau6_im_m_b_re_x_tau8_re_p_b_im_x_tau8_im
+                        - twiddle_im[q][j + 3 * ell] * tau2_im_m_a_re_x_tau4_im_m_a_im_x_tau4_re_m_tau6_re_m_b_re_x_tau8_im_m_b_im_x_tau8_re;
+        im[i + 5 * ell] = twiddle_im[q][j + 3 * ell] * tau2_re_m_a_re_x_tau4_re_p_a_im_x_tau4_im_p_tau6_im_m_b_re_x_tau8_re_p_b_im_x_tau8_im
+                        + twiddle_re[q][j + 3 * ell] * tau2_im_m_a_re_x_tau4_im_m_a_im_x_tau4_re_m_tau6_re_m_b_re_x_tau8_im_m_b_im_x_tau8_re;
+        re[i + 6 * ell] = twiddle_re[q][j + 5 * ell] * tau1_re_m_tau3_im_m_tau5_re_p_tau7_im - twiddle_im[q][j + 5 * ell] * tau1_im_p_tau3_re_m_tau5_im_m_tau7_re;
+        im[i + 6 * ell] = twiddle_im[q][j + 5 * ell] * tau1_re_m_tau3_im_m_tau5_re_p_tau7_im + twiddle_re[q][j + 5 * ell] * tau1_im_p_tau3_re_m_tau5_im_m_tau7_re;
+        re[i + 7 * ell] = twiddle_re[q][j + 5 * ell] * tau2_re_m_b_re_x_tau4_re_p_b_im_x_tau4_im_m_tau6_im_m_a_re_x_tau8_re_p_a_im_x_tau8_im
+                        - twiddle_im[q][j + 5 * ell] * tau2_im_m_b_re_x_tau4_im_m_b_im_x_tau4_re_p_tau6_re_m_a_re_x_tau8_im_m_a_im_x_tau8_re;
+        im[i + 7 * ell] = twiddle_im[q][j + 5 * ell] * tau2_re_m_b_re_x_tau4_re_p_b_im_x_tau4_im_m_tau6_im_m_a_re_x_tau8_re_p_a_im_x_tau8_im
+                        + twiddle_re[q][j + 5 * ell] * tau2_im_m_b_re_x_tau4_im_m_b_im_x_tau4_re_p_tau6_re_m_a_re_x_tau8_im_m_a_im_x_tau8_re;
       }
     }
   }
