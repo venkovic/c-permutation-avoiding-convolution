@@ -8,11 +8,11 @@ double time_diff(struct timespec start, struct timespec end) {
   return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 }
 
-double get_max_error(double *re, double *im, double *fftw_out_flat, int n) {
+double get_max_error(double *re, double *im, double *fftw_flat, int n) {
   double max_err = 0.0;
   for (int i = 0; i < n; ++i) {
-    double err_re = re[i] - fftw_out_flat[2 * i];
-    double err_im = im[i] - fftw_out_flat[2 * i + 1];
+    double err_re = re[i] - fftw_flat[2 * i];
+    double err_im = im[i] - fftw_flat[2 * i + 1];
     double err = hypot(err_re, err_im);
     if (err > max_err)
       max_err = err;
@@ -34,6 +34,13 @@ void initialize_data_split(double *re, double *im, double *fftw_in_flat, int n) 
     im[i] = rand() / (double)RAND_MAX; 
     fftw_in_flat[2 * i]     = re[i];
     fftw_in_flat[2 * i + 1] = im[i];
+  }
+}
+
+void initialize_filter(double *g_re, double *g_im, int n) {
+  for (int i = 0; i < n; ++i) {
+    g_re[i] = rand() / (double)RAND_MAX;
+    g_im[i] = rand() / (double)RAND_MAX; 
   }
 }
 
