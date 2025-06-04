@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     // Radix-4
     if (supports_radix_4(t2_1) && supports_radix_4(t2_2)) {
       int t4_1 = t2_1 >> 1;
-      int t4_2 = t2_1 >> 1;
+      int t4_2 = t2_2 >> 1;
       int* rho = precompute_index_reversal_permutation_r4_2d(n1, n2);
 
       double** twiddle_re1, **twiddle_im1;
