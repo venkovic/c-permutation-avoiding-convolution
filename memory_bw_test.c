@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2025 Nicolas Venkovic
+ * 
+ * This file is part of c-permutation-avoiding-convolution.
+ * 
+ * This file is licensed under the MIT License.
+ * For the full license text, see the LICENSE file in the root directory of this project.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
