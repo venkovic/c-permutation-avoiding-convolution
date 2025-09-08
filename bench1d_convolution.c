@@ -19,21 +19,40 @@
 #include "fft.h"
 
 void fftw_based_convolution(fftw_plan p_forward, fftw_plan p_backward,
-                            double* fftw_out_flat,
-                            double* g_re, double* g_im, 
+                            double* fftw_in_flat, double* fftw_out_flat,
+                            double* h_re, double* h_im,
+                            double* re, double* im,
                             int n) {
   
   fftw_execute(p_forward);
 
   for (int i = 0; i < n; i++) {
-    double re = fftw_out_flat[2 * i];
-    double im = fftw_out_flat[2 * i + 1];
+    re[i] = fftw_out_flat[2 * i];
+    im[i] = fftw_out_flat[2 * i + 1];
 
-    fftw_out_flat[2 * i]     = (re * g_re[i] - im * g_im[i]) / n;
-    fftw_out_flat[2 * i + 1] = (re * g_im[i] + im * g_re[i]) / n;
+    fftw_in_flat[2 * i] = h_re[i];
+    fftw_in_flat[2 * i + 1] = h_im[i];
+  }
+
+  fftw_execute(p_forward);
+
+  for (int i = 0; i < n; i++) {
+    double Fx_re = re[i];
+    double Fx_im = im[i];
+
+    double Fh_re = fftw_out_flat[2 * i];
+    double Fh_im = fftw_out_flat[2 * i + 1];
+
+    fftw_out_flat[2 * i]     = (Fx_re * Fh_re - Fx_im * Fh_im);
+    fftw_out_flat[2 * i + 1] = (Fx_re * Fh_im + Fx_im * Fh_re);
   }
 
   fftw_execute(p_backward);
+
+  for (int i = 0; i < n; i++) {
+    fftw_in_flat[2 * i] /= n;
+    fftw_in_flat[2 * i + 1] /= n;
+  }
 }
            
 int main(int argc, char** argv) {
@@ -69,10 +88,12 @@ int main(int argc, char** argv) {
   // Allocate memory
   double* re  = malloc(n * sizeof(double));
   double* im  = malloc(n * sizeof(double));
-  double* g_re  = malloc(n * sizeof(double));
-  double* g_im  = malloc(n * sizeof(double));
-  double* Pg_re  = malloc(n * sizeof(double));
-  double* Pg_im  = malloc(n * sizeof(double));
+  double* tmp_re  = malloc(n * sizeof(double));
+  double* tmp_im  = malloc(n * sizeof(double));
+  double* h_re  = malloc(n * sizeof(double));
+  double* h_im  = malloc(n * sizeof(double));
+  double* h_re_copy  = malloc(n * sizeof(double));
+  double* h_im_copy  = malloc(n * sizeof(double));
   fftw_complex* fftw_in  = fftw_malloc(n * sizeof(fftw_complex));
   fftw_complex* fftw_out = fftw_malloc(n * sizeof(fftw_complex));
   double* fftw_in_flat  = (double*)fftw_in;
@@ -85,19 +106,18 @@ int main(int argc, char** argv) {
   fftw_plan p_forward  = fftw_plan_dft_1d(n, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
   fftw_plan p_backward = fftw_plan_dft_1d(n, fftw_out, fftw_in, FFTW_BACKWARD, FFTW_ESTIMATE);
 
-  initialize_filter(g_re, g_im, n);
-  memcpy(Pg_re, g_re, n * sizeof(double));
-  memcpy(Pg_im, g_im, n * sizeof(double));
-  apply_permutation_split(Pg_re, Pg_im, n, rho);
+  initialize_filter(h_re, h_im, n);
+  memcpy(h_re_copy, h_re, n * sizeof(double));
+  memcpy(h_im_copy, h_im, n * sizeof(double));
 
   if (do_verify) {
     initialize_data_split(re, im, fftw_in_flat, n);
     
     // FFTW
-    fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+    fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
 
     // FFT-based radix-2
-    fft_based_convolution(re, im, n, 2, twiddle_re, twiddle_im, rho, g_re, g_im);
+    fft_based_convolution(re, im, n, 2, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
 
     double max_err = get_max_error(re, im, fftw_in_flat, n);
     printf("Max error FFT-based radix-2 vs FFTW: %.3e\n", max_err);
@@ -105,10 +125,13 @@ int main(int argc, char** argv) {
     initialize_data_split(re, im, fftw_in_flat, n);
     
     // FFTW
-    fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+    fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
+
+    memcpy(h_re_copy, h_re, n * sizeof(double));
+    memcpy(h_im_copy, h_im, n * sizeof(double));
 
     // Permutation-avoiding radix-2
-    permutation_avoiding_convolution(re, im, n, 2, twiddle_re, twiddle_im, Pg_re, Pg_im);
+    permutation_avoiding_convolution(re, im, n, 2, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
 
     max_err = get_max_error(re, im, fftw_in_flat, n);
     printf("Max error Permutation-avoiding radix-2 vs FFTW: %.3e\n", max_err);
@@ -123,17 +146,16 @@ int main(int argc, char** argv) {
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r4(n, &twiddle_re, &twiddle_im);
       
-      memcpy(Pg_re, g_re, n * sizeof(double));
-      memcpy(Pg_im, g_im, n * sizeof(double));
-      apply_permutation_split(Pg_re, Pg_im, n, rho);
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
 
       initialize_data_split(re, im, fftw_in_flat, n);
       
       // FFTW
-      fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+      fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
 
       // FFT-based radix-4
-      fft_based_convolution(re, im, n, 4, twiddle_re, twiddle_im, rho, g_re, g_im);
+      fft_based_convolution(re, im, n, 4, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
 
       max_err = get_max_error(re, im, fftw_in_flat, n);
       printf("Max error FFT-based radix-4 vs FFTW: %.3e\n", max_err);          
@@ -141,10 +163,13 @@ int main(int argc, char** argv) {
       initialize_data_split(re, im, fftw_in_flat, n);
     
       // FFTW
-      fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+      fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
+
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
 
       // Permutation-avoiding radix-4
-      permutation_avoiding_convolution(re, im, n, 4, twiddle_re, twiddle_im, Pg_re, Pg_im);
+      permutation_avoiding_convolution(re, im, n, 4, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
 
       max_err = get_max_error(re, im, fftw_in_flat, n);
       printf("Max error Permutation-avoiding radix-4 vs FFTW: %.3e\n", max_err);
@@ -160,17 +185,16 @@ int main(int argc, char** argv) {
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
       
-      memcpy(Pg_re, g_re, n * sizeof(double));
-      memcpy(Pg_im, g_im, n * sizeof(double));
-      apply_permutation_split(Pg_re, Pg_im, n, rho);
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
 
       initialize_data_split(re, im, fftw_in_flat, n);
       
       // FFTW
-      fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+      fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
 
       // FFT-based radix-8
-      fft_based_convolution(re, im, n, 8, twiddle_re, twiddle_im, rho, g_re, g_im);
+      fft_based_convolution(re, im, n, 8, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
 
       max_err = get_max_error(re, im, fftw_in_flat, n);
       printf("Max error FFT-based radix-8 vs FFTW: %.3e\n", max_err);          
@@ -178,10 +202,13 @@ int main(int argc, char** argv) {
       initialize_data_split(re, im, fftw_in_flat, n);
     
       // FFTW
-      fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+      fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
+
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
 
       // Permutation-avoiding radix-8
-      permutation_avoiding_convolution(re, im, n, 8, twiddle_re, twiddle_im, Pg_re, Pg_im);
+      permutation_avoiding_convolution(re, im, n, 8, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
 
       max_err = get_max_error(re, im, fftw_in_flat, n);
       printf("Max error Permutation-avoiding radix-8 vs FFTW: %.3e\n", max_err);
@@ -198,21 +225,29 @@ int main(int argc, char** argv) {
     
     // Warm-up
     initialize_data_split(re, im, fftw_in_flat, n);
-    fft_based_convolution(re, im, n, 2, twiddle_re, twiddle_im, rho, g_re, g_im);
-    permutation_avoiding_convolution(re, im, n, 2, twiddle_re, twiddle_im, Pg_re, Pg_im);
+    fft_based_convolution(re, im, n, 2, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
+    memcpy(h_re_copy, h_re, n * sizeof(double));
+    memcpy(h_im_copy, h_im, n * sizeof(double));
+    permutation_avoiding_convolution(re, im, n, 2, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
     
     // Timing runs
     double total_fft_based = 0., total_permutation_avoiding = 0.;
     for (int t = 0; t < timing_runs; ++t) {
       initialize_data_split(re, im, fftw_in_flat, n);
 
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
+
       clock_gettime(CLOCK_MONOTONIC, &start);
-      fft_based_convolution(re, im, n, 2, twiddle_re, twiddle_im, rho, g_re, g_im);
+      fft_based_convolution(re, im, n, 2, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_fft_based += time_diff(start, end);
 
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
+
       clock_gettime(CLOCK_MONOTONIC, &start);
-      permutation_avoiding_convolution(re, im, n, 2, twiddle_re, twiddle_im, Pg_re, Pg_im);
+      permutation_avoiding_convolution(re, im, n, 2, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_permutation_avoiding += time_diff(start, end);
     }
@@ -231,27 +266,34 @@ int main(int argc, char** argv) {
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r4(n, &twiddle_re, &twiddle_im);
 
-      memcpy(Pg_re, g_re, n * sizeof(double));
-      memcpy(Pg_im, g_im, n * sizeof(double));
-      apply_permutation_split(Pg_re, Pg_im, n, rho);
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
 
       // Warm-up
       initialize_data_split(re, im, fftw_in_flat, n);
-      fft_based_convolution(re, im, n, 4, twiddle_re, twiddle_im, rho, g_re, g_im);
-      permutation_avoiding_convolution(re, im, n, 4, twiddle_re, twiddle_im, Pg_re, Pg_im);
+      fft_based_convolution(re, im, n, 4, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
+      permutation_avoiding_convolution(re, im, n, 4, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
 
       // Timing runs
       total_fft_based = 0., total_permutation_avoiding = 0.;
       for (int t = 0; t < timing_runs; ++t) {
         initialize_data_split(re, im, fftw_in_flat, n);
 
+        memcpy(h_re_copy, h_re, n * sizeof(double));
+        memcpy(h_im_copy, h_im, n * sizeof(double));
+
         clock_gettime(CLOCK_MONOTONIC, &start);
-        fft_based_convolution(re, im, n, 4, twiddle_re, twiddle_im, rho, g_re, g_im);
+        fft_based_convolution(re, im, n, 4, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_fft_based += time_diff(start, end);
 
+        memcpy(h_re_copy, h_re, n * sizeof(double));
+        memcpy(h_im_copy, h_im, n * sizeof(double));
+
         clock_gettime(CLOCK_MONOTONIC, &start);
-        permutation_avoiding_convolution(re, im, n, 4, twiddle_re, twiddle_im, Pg_re, Pg_im);
+        permutation_avoiding_convolution(re, im, n, 4, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_permutation_avoiding += time_diff(start, end);
       }
@@ -271,27 +313,34 @@ int main(int argc, char** argv) {
       double** twiddle_re, **twiddle_im;
       precompute_twiddles_r8(n, &twiddle_re, &twiddle_im);
 
-      memcpy(Pg_re, g_re, n * sizeof(double));
-      memcpy(Pg_im, g_im, n * sizeof(double));
-      apply_permutation_split(Pg_re, Pg_im, n, rho);
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
           
       // Warm-up
       initialize_data_split(re, im, fftw_in_flat, n);
-      fft_based_convolution(re, im, n, 8, twiddle_re, twiddle_im, rho, g_re, g_im);
-      permutation_avoiding_convolution(re, im, n, 8, twiddle_re, twiddle_im, Pg_re, Pg_im);
+      fft_based_convolution(re, im, n, 8, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
+      memcpy(h_re_copy, h_re, n * sizeof(double));
+      memcpy(h_im_copy, h_im, n * sizeof(double));
+      permutation_avoiding_convolution(re, im, n, 8, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
 
       // Timing runs
       total_fft_based = 0., total_permutation_avoiding = 0.;
       for (int t = 0; t < timing_runs; ++t) {
         initialize_data_split(re, im, fftw_in_flat, n);
 
+        memcpy(h_re_copy, h_re, n * sizeof(double));
+        memcpy(h_im_copy, h_im, n * sizeof(double));
+
         clock_gettime(CLOCK_MONOTONIC, &start);
-        fft_based_convolution(re, im, n, 8, twiddle_re, twiddle_im, rho, g_re, g_im);
+        fft_based_convolution(re, im, n, 8, twiddle_re, twiddle_im, rho, h_re_copy, h_im_copy);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_fft_based += time_diff(start, end);
 
+        memcpy(h_re_copy, h_re, n * sizeof(double));
+        memcpy(h_im_copy, h_im, n * sizeof(double));
+
         clock_gettime(CLOCK_MONOTONIC, &start);
-        permutation_avoiding_convolution(re, im, n, 8, twiddle_re, twiddle_im, Pg_re, Pg_im);
+        permutation_avoiding_convolution(re, im, n, 8, twiddle_re, twiddle_im, h_re_copy, h_im_copy);
         clock_gettime(CLOCK_MONOTONIC, &end);
         total_permutation_avoiding += time_diff(start, end);
       }
@@ -308,7 +357,7 @@ int main(int argc, char** argv) {
 
     // Warm-up
     initialize_data_split(re, im, fftw_in_flat, n);
-    fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+    fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
 
     // Timing runs
     double total_fftw = 0.;
@@ -316,7 +365,7 @@ int main(int argc, char** argv) {
       initialize_data_split(re, im, fftw_in_flat, n);
 
       clock_gettime(CLOCK_MONOTONIC, &start);
-      fftw_based_convolution(p_forward, p_backward, fftw_out_flat, g_re, g_im, n);
+      fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
       clock_gettime(CLOCK_MONOTONIC, &end);
       total_fftw += time_diff(start, end);
     }
@@ -330,8 +379,9 @@ int main(int argc, char** argv) {
   fftw_free(fftw_in);
   fftw_free(fftw_out);
   free(re); free(im); 
-  free(g_re); free(g_im); 
-  free(Pg_re); free(Pg_im); 
+  free(tmp_re); free(tmp_im); 
+  free(h_re); free(h_im); 
+  free(h_re_copy); free(h_im_copy); 
 
   return 0;
 }

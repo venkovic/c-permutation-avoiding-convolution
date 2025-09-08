@@ -15,15 +15,19 @@ void fft_based_convolution_3d(double* restrict re, double* restrict im,
                               double** twiddle_re2, double** twiddle_im2,
                               double** twiddle_re3, double** twiddle_im3,                               
                               const int* rho, 
-                              double* restrict g_re, double* restrict g_im) {
+                              double* restrict h_re, double* restrict h_im) {
   int n = n1 * n2 * n3;
 
   fft_3d(re, im, n1, n2, n3, r, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, rho);
 
+  fft_3d(h_re, h_im, n1, n2, n3, r, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, rho);
+
   for (int i = 0; i < n; i++) {
-    double x_re = re[i], x_im = im[i];
-    re[i] = x_re * g_re[i] - x_im * g_im[i];
-    im[i] = x_re * g_im[i] + x_im * g_re[i];
+    double Fx_re = re[i], Fx_im = im[i];
+    double Fh_re = h_re[i], Fh_im = h_im[i];
+
+    re[i] = Fx_re * Fh_re - Fx_im * Fh_im;
+    im[i] = Fx_re * Fh_im + Fx_im * Fh_re;
   }
 
   ifft_3d(re, im, n1, n2, n3, r, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, rho);
@@ -34,7 +38,7 @@ void permutation_avoiding_convolution_3d(double* restrict re, double* restrict i
                                          double** twiddle_re1, double** twiddle_im1,
                                          double** twiddle_re2, double** twiddle_im2,
                                          double** twiddle_re3, double** twiddle_im3,
-                                         double* restrict Pg_re, double* restrict Pg_im) {
+                                         double* restrict h_re, double* restrict h_im) {
   int n = n1 * n2 * n3;
 
   if (r == 2) {
@@ -44,10 +48,19 @@ void permutation_avoiding_convolution_3d(double* restrict re, double* restrict i
     apply_transposed_butterflies_r4_3d(re, im, n1, n2, n3, (const double**)twiddle_re1, (const double**)twiddle_im1, (const double**)twiddle_re2, (const double**)twiddle_im2, (const double**)twiddle_re3, (const double**)twiddle_im3);
   }
 
+  if (r == 2) {
+    apply_transposed_butterflies_r2_3d(h_re, h_im, n1, n2, n3, (const double**)twiddle_re1, (const double**)twiddle_im1, (const double**)twiddle_re2, (const double**)twiddle_im2, (const double**)twiddle_re3, (const double**)twiddle_im3);
+  }
+  else if (r == 4) {
+    apply_transposed_butterflies_r4_3d(h_re, h_im, n1, n2, n3, (const double**)twiddle_re1, (const double**)twiddle_im1, (const double**)twiddle_re2, (const double**)twiddle_im2, (const double**)twiddle_re3, (const double**)twiddle_im3);
+  }
+
   for (int i = 0; i < n; i++) {
-    double x_re = re[i], x_im = im[i];
-    re[i] = (x_re * Pg_re[i] - x_im * Pg_im[i]) / n;
-    im[i] = (x_re * Pg_im[i] + x_im * Pg_re[i]) / n;
+    double Atx_re = re[i], Atx_im = im[i];
+    double Ath_re = h_re[i], Ath_im = h_im[i];
+
+    re[i] = (Atx_re * Ath_re - Atx_im * Ath_im) / n;
+    im[i] = (Atx_re * Ath_im + Atx_im * Ath_re) / n;
   }
 
   if (r == 2) {
