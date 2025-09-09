@@ -1,0 +1,12 @@
+bench1d_backward_fft
+bench1d_convolution
+bench1d_forward_fft
+bench2d_backward_fft
+bench2d_convolution
+bench2d_forward_fft
+bench3d_backward_fft
+bench3d_convolution
+bench3d_forward_fft
+memory_bw_test
+*.o
+.vscode/
