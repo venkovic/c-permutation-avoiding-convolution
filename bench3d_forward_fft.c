@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
   precompute_twiddles_r2(n1, &twiddle_re1, &twiddle_im1);
   precompute_twiddles_r2(n2, &twiddle_re2, &twiddle_im2);
   precompute_twiddles_r2(n2, &twiddle_re3, &twiddle_im3);
-  fftw_plan p = fftw_plan_dft_3d(n1, n2, n3, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
+  fftw_plan p = fftw_plan_dft_3d(n1, n2, n3, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE | FFTW_NO_SIMD);
 
   if (do_verify) {
     initialize_data_split(re, im, fftw_in_flat, n);

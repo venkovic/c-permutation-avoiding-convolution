@@ -109,8 +109,8 @@ int main(int argc, char** argv) {
   precompute_twiddles_r2(n1, &twiddle_re1, &twiddle_im1);
   precompute_twiddles_r2(n2, &twiddle_re2, &twiddle_im2);
 
-  fftw_plan p_forward = fftw_plan_dft_2d(n1, n2, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
-  fftw_plan p_backward = fftw_plan_dft_2d(n1, n2, fftw_out, fftw_in, FFTW_BACKWARD, FFTW_ESTIMATE);
+  fftw_plan p_forward = fftw_plan_dft_2d(n1, n2, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE | FFTW_NO_SIMD);
+  fftw_plan p_backward = fftw_plan_dft_2d(n1, n2, fftw_out, fftw_in, FFTW_BACKWARD, FFTW_ESTIMATE | FFTW_NO_SIMD);
 
   initialize_filter(h_re, h_im, n);
   memcpy(h_re_copy, h_re, n * sizeof(double));

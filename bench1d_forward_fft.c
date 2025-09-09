@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
   int* rho = precompute_index_reversal_permutation_r2(n);
   double** twiddle_re, **twiddle_im;
   precompute_twiddles_r2(n, &twiddle_re, &twiddle_im);
-  fftw_plan p = fftw_plan_dft_1d(n, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE);
+  fftw_plan p = fftw_plan_dft_1d(n, fftw_in, fftw_out, FFTW_FORWARD, FFTW_ESTIMATE | FFTW_NO_SIMD);
 
   if (do_verify) {
     initialize_data_split(re, im, fftw_in_flat, n);
