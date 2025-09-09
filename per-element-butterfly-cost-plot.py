@@ -49,7 +49,7 @@ dt_per_el_r4_3D_2 = dt_r4_3D_2 / n_r4_3D
 
 fontsize = 15
 
-fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8, 4.5))
+fig, ax = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8, 5))
 ax[0].loglog(n_r2_1D, dt_per_el_r2_1D, 'o-', label="1D", color="b")
 ax[0].loglog(n_r2_2D, dt_per_el_r2_2D, 'o-', label="2D", color="r")
 ax[0].loglog(n_r2_3D, dt_per_el_r2_3D, 'o-', label="3D", color="g")
