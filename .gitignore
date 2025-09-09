@@ -8,6 +8,7 @@ bench3d_backward_fft
 bench3d_convolution
 bench3d_forward_fft
 bench2d_convolution_anisotropic
+bench3d_convolution_anisotropic
 memory_bw_test
 *.o
 .vscode/
