@@ -62,3 +62,19 @@ bool supports_radix_8(int t2) {
   if (t2 % 3) return false;
   return true;
 }
+
+void in_place_square_array_transpose_split_2d(double* re, double* im, int n) {
+  for (int i=0; i<n; i++) {
+    double* re_i = re + i * n;
+    double* im_i = im + i * n;
+    for (int j=0; j<i; j++) {
+      int k = j * n + i;
+      double tmp_re = re[k];
+      double tmp_im = im[k];
+      re[k] = re_i[j];
+      im[k] = im_i[j];
+      re_i[j] = tmp_re;
+      im_i[j] = tmp_im;
+    }
+  }
+}

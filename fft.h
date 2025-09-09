@@ -228,5 +228,6 @@ void initialize_data_split(double *re, double *im, double *fftw_in_flat, int n);
 void initialize_filter(double *g_re, double *g_im, int n);
 bool supports_radix_4(int t2);
 bool supports_radix_8(int t2);
+void in_place_square_array_transpose_split_2d(double* re, double* im, int n);
 
 #endif // FFT_H
