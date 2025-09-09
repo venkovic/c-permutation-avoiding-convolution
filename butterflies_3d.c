@@ -25,7 +25,7 @@ void apply_butterflies_r2_3d(double* restrict re, double* restrict im,
       double* re_slice = re + (i1 * n2 + i2) * n3;
       double* im_slice = im + (i1 * n2 + i2) * n3;
       
-      apply_butterflies_r2(re_slice, im_slice, n3, twiddle_re1, twiddle_im1);
+      apply_butterflies_r2(re_slice, im_slice, n3, twiddle_re3, twiddle_im3);
     }
   }
   
@@ -62,7 +62,7 @@ void apply_butterflies_r2_3d(double* restrict re, double* restrict im,
       }
       
       // Apply 1D FFT
-      apply_butterflies_r2(temp_re, temp_im, n1, twiddle_re3, twiddle_im3);
+      apply_butterflies_r2(temp_re, temp_im, n1, twiddle_re1, twiddle_im1);
       
       // Copy back
       for (int i1 = 0; i1 < n1; ++i1) {
@@ -92,7 +92,7 @@ void apply_conjugate_butterflies_r2_3d(double* restrict re, double* restrict im,
       double* re_slice = re + (i1 * n2 + i2) * n3;
       double* im_slice = im + (i1 * n2 + i2) * n3;
       
-      apply_conjugate_butterflies_r2(re_slice, im_slice, n3, twiddle_re1, twiddle_im1);
+      apply_conjugate_butterflies_r2(re_slice, im_slice, n3, twiddle_re3, twiddle_im3);
     }
   }
   
@@ -124,7 +124,7 @@ void apply_conjugate_butterflies_r2_3d(double* restrict re, double* restrict im,
         temp_im[i1] = im[idx];
       }
       
-      apply_conjugate_butterflies_r2(temp_re, temp_im, n1, twiddle_re3, twiddle_im3);
+      apply_conjugate_butterflies_r2(temp_re, temp_im, n1, twiddle_re1, twiddle_im1);
       
       for (int i1 = 0; i1 < n1; ++i1) {
         int idx = (i1 * n2 + i2) * n3 + i3;
@@ -153,7 +153,7 @@ void apply_transposed_butterflies_r2_3d(double* restrict re, double* restrict im
       double* re_slice = re + (i1 * n2 + i2) * n3;
       double* im_slice = im + (i1 * n2 + i2) * n3;
       
-      apply_transposed_butterflies_r2(re_slice, im_slice, n3, twiddle_re1, twiddle_im1);
+      apply_transposed_butterflies_r2(re_slice, im_slice, n3, twiddle_re3, twiddle_im3);
     }
   }
   
@@ -185,7 +185,7 @@ void apply_transposed_butterflies_r2_3d(double* restrict re, double* restrict im
         temp_im[i1] = im[idx];
       }
       
-      apply_transposed_butterflies_r2(temp_re, temp_im, n1, twiddle_re3, twiddle_im3);
+      apply_transposed_butterflies_r2(temp_re, temp_im, n1, twiddle_re1, twiddle_im1);
       
       for (int i1 = 0; i1 < n1; ++i1) {
         int idx = (i1 * n2 + i2) * n3 + i3;
@@ -214,7 +214,7 @@ void apply_butterflies_r4_3d(double* restrict re, double* restrict im,
       double* re_slice = re + (i1 * n2 + i2) * n3;
       double* im_slice = im + (i1 * n2 + i2) * n3;
       
-      apply_butterflies_r4(re_slice, im_slice, n3, twiddle_re1, twiddle_im1);
+      apply_butterflies_r4(re_slice, im_slice, n3, twiddle_re3, twiddle_im3);
     }
   }
   
@@ -246,7 +246,7 @@ void apply_butterflies_r4_3d(double* restrict re, double* restrict im,
         temp_im[i1] = im[idx];
       }
       
-      apply_butterflies_r4(temp_re, temp_im, n1, twiddle_re3, twiddle_im3);
+      apply_butterflies_r4(temp_re, temp_im, n1, twiddle_re1, twiddle_im1);
       
       for (int i1 = 0; i1 < n1; ++i1) {
         int idx = (i1 * n2 + i2) * n3 + i3;
@@ -275,7 +275,7 @@ void apply_conjugate_butterflies_r4_3d(double* restrict re, double* restrict im,
       double* re_slice = re + (i1 * n2 + i2) * n3;
       double* im_slice = im + (i1 * n2 + i2) * n3;
       
-      apply_conjugate_butterflies_r4(re_slice, im_slice, n3, twiddle_re1, twiddle_im1);
+      apply_conjugate_butterflies_r4(re_slice, im_slice, n3, twiddle_re3, twiddle_im3);
     }
   }
   
@@ -307,7 +307,7 @@ void apply_conjugate_butterflies_r4_3d(double* restrict re, double* restrict im,
         temp_im[i1] = im[idx];
       }
       
-      apply_conjugate_butterflies_r4(temp_re, temp_im, n1, twiddle_re3, twiddle_im3);
+      apply_conjugate_butterflies_r4(temp_re, temp_im, n1, twiddle_re1, twiddle_im1);
       
       for (int i1 = 0; i1 < n1; ++i1) {
         int idx = (i1 * n2 + i2) * n3 + i3;
@@ -336,7 +336,7 @@ void apply_transposed_butterflies_r4_3d(double* restrict re, double* restrict im
       double* re_slice = re + (i1 * n2 + i2) * n3;
       double* im_slice = im + (i1 * n2 + i2) * n3;
       
-      apply_transposed_butterflies_r4(re_slice, im_slice, n3, twiddle_re1, twiddle_im1);
+      apply_transposed_butterflies_r4(re_slice, im_slice, n3, twiddle_re3, twiddle_im3);
     }
   }
   
@@ -368,7 +368,7 @@ void apply_transposed_butterflies_r4_3d(double* restrict re, double* restrict im
         temp_im[i1] = im[idx];
       }
       
-      apply_transposed_butterflies_r4(temp_re, temp_im, n1, twiddle_re3, twiddle_im3);
+      apply_transposed_butterflies_r4(temp_re, temp_im, n1, twiddle_re1, twiddle_im1);
       
       for (int i1 = 0; i1 < n1; ++i1) {
         int idx = (i1 * n2 + i2) * n3 + i3;
