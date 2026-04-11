@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Nicolas Venkovic
+# Copyright (c) 2026 Nicolas Venkovic
 #
 # This file is part of c-permutation-avoiding-convolution.
 # 
@@ -7,7 +7,7 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -O3 -ffast-math -funroll-loops -Wall -Wextra
+CFLAGS = -O3 -march=native -ffast-math -Wall -Wextra
 
 # FFTW configuration - try multiple sources
 FFTW_CFLAGS := $(shell pkg-config --cflags fftw3 2>/dev/null || \
@@ -99,10 +99,6 @@ $(MEMORY_BW_TEST): memory_bw_test.o
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Special rule for memory bandwidth test (no FFTW headers needed)
-memory_bw_test.o: memory_bw_test.c
-	$(CC) -O3 -Wall -Wextra -c $< -o $@
-
 # Clean rule
 clean:
 	rm -f $(COMMON_OBJ) bench1d_forward_fft.o bench1d_backward_fft.o bench1d_convolution.o bench2d_forward_fft.o bench2d_backward_fft.o bench2d_convolution.o bench3d_forward_fft.o bench3d_backward_fft.o bench3d_convolution.o bench2d_convolution_anisotropic.o bench3d_convolution_anisotropic.o memory_bw_test.o $(TARGETS)
@@ -114,69 +110,4 @@ debug-fftw:
 	@echo "Final CFLAGS: $(CFLAGS)"
 	@echo "Final LDFLAGS: $(LDFLAGS)"
 
-# Run benchmarks
-run-forward: $(TARGET1)
-	./$(TARGET1)
-
-run-backward: $(TARGET2)
-	./$(TARGET2)
-
-run-convolution: $(TARGET3)
-	./$(TARGET3)
-
-run-forward-2d: $(TARGET4)
-	./$(TARGET4)
-
-run-backward-2d: $(TARGET5)
-	./$(TARGET5)
-
-run-convolution-2d: $(TARGET6)
-	./$(TARGET6)
-
-run-forward-3d: $(TARGET7)
-	./$(TARGET7)
-
-run-backward-3d: $(TARGET8)
-	./$(TARGET8)
-
-run-convolution-3d: $(TARGET9)
-	./$(TARGET9)
-
-run-convolution-anisotropic-2d: $(TARGET10)
-	./$(TARGET10)
-
-run-convolution-anisotropic-3d: $(TARGET11)
-	./$(TARGET11)
-
-run-all: $(TARGETS)
-	./$(TARGET1)
-	./$(TARGET2)
-	./$(TARGET3)
-	./$(TARGET4)
-	./$(TARGET5)
-	./$(TARGET6)
-	./$(TARGET7)
-	./$(TARGET8)
-	./$(TARGET9)
-	./$(TARGET10)
-	./$(TARGET11)
-
-# Run memory bandwidth test
-run-memory-bw: $(MEMORY_BW_TEST)
-	./$(MEMORY_BW_TEST)
-
-# Individual targets (useful for building just one)
-forward: $(TARGET1)
-backward: $(TARGET2)
-convolution: $(TARGET3)
-forward-2d: $(TARGET4)
-backward-2d: $(TARGET5)
-convolution-2d: $(TARGET6)
-forward-3d: $(TARGET7)
-backward-3d: $(TARGET8)
-convolution-3d: $(TARGET9)
-convolution-anisotropic-2d: $(TARGET10)
-convolution-anisotropic-3d: $(TARGET11)
-memory-bw: $(MEMORY_BW_TEST)
-
-.PHONY: all clean debug-fftw run-forward run-backward run-convolution run-forward-2d run-backward-2d run-convolution-2d run-forward-3d run-backward-3d run-convolution-3d run-all run-memory-bw forward backward convolution forward-2d backward-2d convolution-2d forward-3d backward-3d convolution-3d convolution-anisotropic-2d convolution-anisotropic-3d memory-bw
+.PHONY: all clean debug-fftw
