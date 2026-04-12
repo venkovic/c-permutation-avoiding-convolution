@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <complex.h>
+#include <math.h>
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
@@ -214,6 +215,8 @@ int main(int argc, char** argv) {
     
     // Timing runs
     double total_fft_based = 0., total_permutation_avoiding = 0.;
+    double total_fft_based_sq = 0., total_permutation_avoiding_sq = 0.;
+    double dt;
     for (int t = 0; t < timing_runs; ++t) {
       initialize_data_split(re, im, fftw_in_flat, n);
 
@@ -223,7 +226,9 @@ int main(int argc, char** argv) {
       clock_gettime(CLOCK_MONOTONIC, &start);
       fft_based_convolution_3d(re, im, n1, n2, n3, 2, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, rho, h_re_copy, h_im_copy);
       clock_gettime(CLOCK_MONOTONIC, &end);
-      total_fft_based += time_diff(start, end);
+      dt = time_diff(start, end);
+      total_fft_based += dt;
+      total_fft_based_sq += dt * dt;
 
       memcpy(h_re_copy, h_re, n * sizeof(double));
       memcpy(h_im_copy, h_im, n * sizeof(double));
@@ -231,11 +236,18 @@ int main(int argc, char** argv) {
       clock_gettime(CLOCK_MONOTONIC, &start);
       permutation_avoiding_convolution_3d(re, im, n1, n2, n3, 2, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, h_re_copy, h_im_copy);
       clock_gettime(CLOCK_MONOTONIC, &end);
-      total_permutation_avoiding += time_diff(start, end);
+      dt = time_diff(start, end);
+      total_permutation_avoiding += dt;
+      total_permutation_avoiding_sq += dt * dt;
     }
 
-    printf("Average radix-2 FFT-based time:               %.6f seconds\n", total_fft_based / timing_runs);
-    printf("Average radix-2 permutation-avoiding time:    %.6f seconds\n", total_permutation_avoiding / timing_runs);
+    double mu = total_fft_based / timing_runs;
+    double s = sqrt(total_fft_based_sq / timing_runs - mu * mu);
+    printf("Average radix-2 FFT time:                        %.6f +/- %.6f seconds\n", mu, s);
+
+    mu = total_permutation_avoiding / timing_runs;
+    s = sqrt(total_permutation_avoiding_sq / timing_runs - mu * mu);
+    printf("Average radix-2 permutation-avoiding time:       %.6f +/- %.6f seconds\n", mu, s);
 
     // Clean-up
     free(rho);
@@ -268,6 +280,7 @@ int main(int argc, char** argv) {
         
       // Timing runs
       total_fft_based = 0., total_permutation_avoiding = 0.;
+      total_fft_based_sq = 0., total_permutation_avoiding_sq = 0.;
       for (int t = 0; t < timing_runs; ++t) {
         initialize_data_split(re, im, fftw_in_flat, n);
 
@@ -277,7 +290,9 @@ int main(int argc, char** argv) {
         clock_gettime(CLOCK_MONOTONIC, &start);
         fft_based_convolution_3d(re, im, n1, n2, n3, 4, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, rho, h_re_copy, h_im_copy);
         clock_gettime(CLOCK_MONOTONIC, &end);
-        total_fft_based += time_diff(start, end);
+        dt = time_diff(start, end);
+        total_fft_based += dt;
+        total_fft_based_sq += dt * dt;
 
         memcpy(h_re_copy, h_re, n * sizeof(double));
         memcpy(h_im_copy, h_im, n * sizeof(double));
@@ -285,11 +300,18 @@ int main(int argc, char** argv) {
         clock_gettime(CLOCK_MONOTONIC, &start);
         permutation_avoiding_convolution_3d(re, im, n1, n2, n3, 4, twiddle_re1, twiddle_im1, twiddle_re2, twiddle_im2, twiddle_re3, twiddle_im3, h_re_copy, h_im_copy);
         clock_gettime(CLOCK_MONOTONIC, &end);
-        total_permutation_avoiding += time_diff(start, end);
+        dt = time_diff(start, end);
+        total_permutation_avoiding += dt;
+        total_permutation_avoiding_sq += dt * dt;
       }
 
-      printf("Average radix-4 FFT-based time:               %.6f seconds\n", total_fft_based / timing_runs);
-      printf("Average radix-4 permutation-avoiding time:    %.6f seconds\n", total_permutation_avoiding / timing_runs);
+      mu = total_fft_based / timing_runs;
+      s = sqrt(total_fft_based_sq / timing_runs - mu * mu);
+      printf("Average radix-4 FFT time:                        %.6f +/- %.6f seconds\n", mu, s);
+
+      mu = total_permutation_avoiding / timing_runs;
+      s = sqrt(total_permutation_avoiding_sq / timing_runs - mu * mu);
+      printf("Average radix-4 permutation-avoiding time:       %.6f +/- %.6f seconds\n", mu, s);
 
       // Clean-up
       free(rho);
@@ -305,17 +327,21 @@ int main(int argc, char** argv) {
     fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
 
     // Timing runs
-    double total_fftw = 0.;
+    double total_fftw = 0., total_fftw_sq = 0.;
     for (int t = 0; t < timing_runs; ++t) {
       initialize_data_split(re, im, fftw_in_flat, n);
 
       clock_gettime(CLOCK_MONOTONIC, &start);
       fftw_based_convolution(p_forward, p_backward, fftw_in_flat, fftw_out_flat, h_re, h_im, tmp_re, tmp_im, n);
       clock_gettime(CLOCK_MONOTONIC, &end);
-      total_fftw += time_diff(start, end);
+      dt = time_diff(start, end);
+      total_fftw += dt;
+      total_fftw_sq += dt * dt;
     }
 
-    printf("Average FFTW time:                            %.6f seconds\n", total_fftw / timing_runs);
+    mu = total_fftw / timing_runs;
+    s = sqrt(total_fftw_sq / timing_runs - mu * mu);
+    printf("Average FFTW time:                               %.6f +/- %.6f seconds\n", mu, s);
   }
 
   // Clean-up
