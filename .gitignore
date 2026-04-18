@@ -11,4 +11,5 @@ bench2d_convolution_anisotropic
 bench3d_convolution_anisotropic
 memory_bw_test
 *.o
+*.out
 .vscode/
