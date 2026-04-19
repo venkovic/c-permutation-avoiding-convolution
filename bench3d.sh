@@ -2,6 +2,31 @@
 
 touch bench3d.out
 
+# 3D forward transforms
+echo "3D forward transforms, t = 7" >> bench3d.out
+stdbuf -oL ./bench3d_forward_fft bench -t 7 >> bench3d.out
+
+echo "" >> bench3d.out
+echo "3D forward transforms, t = 8" >> bench3d.out
+stdbuf -oL ./bench3d_forward_fft bench -t 8 >> bench3d.out
+
+echo "" >> bench3d.out
+echo "3D forward transforms, t = 9" >> bench3d.out
+stdbuf -oL ./bench3d_forward_fft bench -t 9 >> bench3d.out
+
+# 3D backward transforms
+echo "" >> bench3d.out 
+echo "3D backward transforms, t = 7" >> bench3d.out
+stdbuf -oL ./bench3d_backward_fft bench -t 7 >> bench3d.out
+
+echo "" >> bench3d.out
+echo "3D backward transforms, t = 8" >> bench3d.out
+stdbuf -oL ./bench3d_backward_fft bench -t 8 >> bench3d.out
+
+echo "" >> bench3d.out
+echo "3D backward transforms, t = 9" >> bench3d.out
+stdbuf -oL ./bench3d_backward_fft bench -t 9 >> bench3d.out
+
 # 3D isotropic convolutions
 
 echo "" >> bench3d.out
