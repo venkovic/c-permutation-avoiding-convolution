@@ -24,24 +24,24 @@ stdbuf -oL ./bench2d_forward_fft bench -t 14 >> bench2d.out
 
 # 2D backward transforms
 echo "" >> bench2d.out
-echo "2D forward transforms, t = 10" >> bench2d.out
-stdbuf -oL ./bench2d_forward_fft bench -t 10 >> bench2d.out
+echo "2D backward transforms, t = 10" >> bench2d.out
+stdbuf -oL ./bench2d_backward_fft bench -t 10 >> bench2d.out
 
 echo "" >> bench2d.out
-echo "2D forward transforms, t = 11" >> bench2d.out
-stdbuf -oL ./bench2d_forward_fft bench -t 11 >> bench2d.out
+echo "2D backward transforms, t = 11" >> bench2d.out
+stdbuf -oL ./bench2d_backward_fft bench -t 11 >> bench2d.out
 
 echo "" >> bench2d.out
-echo "2D forward transforms, t = 12" >> bench2d.out
-stdbuf -oL ./bench2d_forward_fft bench -t 12 >> bench2d.out
+echo "2D backward transforms, t = 12" >> bench2d.out
+stdbuf -oL ./bench2d_backward_fft bench -t 12 >> bench2d.out
 
 echo "" >> bench2d.out
-echo "2D forward transforms, t = 13" >> bench2d.out
-stdbuf -oL ./bench2d_forward_fft bench -t 13 >> bench2d.out
+echo "2D backward transforms, t = 13" >> bench2d.out
+stdbuf -oL ./bench2d_backward_fft bench -t 13 >> bench2d.out
 
 echo "" >> bench2d.out
-echo "2D forward transforms, t = 14" >> bench2d.out
-stdbuf -oL ./bench2d_forward_fft bench -t 14 >> bench2d.out
+echo "2D backward transforms, t = 14" >> bench2d.out
+stdbuf -oL ./bench2d_backward_fft bench -t 14 >> bench2d.out
 
 # 2D isotropic convolutions
 
