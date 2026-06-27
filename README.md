@@ -203,11 +203,53 @@ B_{4,k}x=
 \end{align}
 $$
 
-This leads to Algo.~\ref{alg:butterfly-kernel-radix-4} for the computation of $x\mapsto A_{4,n}x$.  
+This leads to Algo. 6 for the computation of $x\mapsto A_{4,n}x$.  
 
 <div align="center">
   <img src="Printing-of-tex-algorithms/algo06_butterfly-kernel-radix-4.png">
 </div>
+
+
+The radix-4 conjugate butterfly kernel relies on the expression
+
+$$
+\begin{align}
+\overline{B_{4,k}}x=
+\begin{bmatrix}
+z_{1}+\overline{\Omega_{4,k/4}}z_{2}+\overline{\Omega_{4,k/4}^2}z_{3}+\overline{\Omega_{4,k/4}^3}z_{4}\hfill\\
+z_{1}+i\cdot\overline{\Omega_{4,k/4}}z_{2}-\overline{\Omega_{4,k/4}^2}z_{3}-i\cdot\overline{\Omega_{4,k/4}^3}z_{4}\\
+z_{1}-\overline{\Omega_{4,k/4}}z_{2}+\overline{\Omega_{4,k/4}^2}z_{3}-\overline{\Omega_{4,k/4}^3}z_{4}\hfill\\
+z_{1}-i\cdot\overline{\Omega_{4,k/4}}z_{2}-\overline{\Omega_{4,k/4}^2}z_{3}+i\cdot\overline{\Omega_{4,k/4}^3}z_{4}\hfill
+\end{bmatrix}
+\end{align}
+$$
+
+so that, as we introduce
+
+$$
+\begin{align}
+&\tau_1:=z_1+\overline{\Omega_{4,k/4}^2}z_3\\
+&\tau_2:=z_1-\overline{\Omega_{4,k/4}^2}z_3\\
+&\tau_3:=\overline{\Omega_{4,k/4}}z_2+\overline{\Omega_{4,k/4}^3}z_4\\
+&\tau_4:=\overline{\Omega_{4,k/4}}z_2-\overline{\Omega_{4,k/4}^3}z_4
+\end{align}
+$$
+
+we get
+
+$$
+\begin{align}
+\overline{B_{4,k}}x=
+\begin{bmatrix}
+\tau_1+\tau_3\hfill\\
+\tau_2+i\cdot\tau_4\hfill\\
+\tau_1-\tau_3\hfill\\
+\tau_2-i\cdot\tau_4\hfill
+\end{bmatrix}.
+\end{align}
+$$
+
+This leads to Algo. 7 for the computation of $x\mapsto \overline{A_{4,n}}x$.
 
 <div align="center">
   <img src="Printing-of-tex-algorithms/algo07_conjugate-butterfly-kernel-radix-4.png">
