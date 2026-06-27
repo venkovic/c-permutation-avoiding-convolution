@@ -13,10 +13,8 @@ In what follows, we show detailed implementations of these kernels for radices 2
 ## Radix-2 butterfly-related kernels
 
 For the radix-2 case, we have
-$$
-B_{2,k}=
-(F_2\otimes I_{k/2})\,\text{diag}\left(I_{k/2},\Omega_{2,k/2}\right)
-$$
+$$B_{2,k}=
+(F_2\otimes I_{k/2})\,\text{diag}\left(I_{k/2},\Omega_{2,k/2}\right)$$
 where 
 $F_2=\begin{bmatrix}1& 1\\1&-1\end{bmatrix}$ 
 so that
