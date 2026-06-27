@@ -22,7 +22,10 @@ $$
 where 
 
 $$
-F_2=\begin{bmatrix}1 & 1 \\ 1 & -1\end{bmatrix}
+F_2=\begin{bmatrix}
+     1 & 1 \\ 
+     1 & -1
+    \end{bmatrix}
 $$
 
 so that
