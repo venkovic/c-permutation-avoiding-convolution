@@ -1,0 +1,39 @@
+\setcounter{algorithm}{9}
+\begin{algorithm}[H]
+\caption{Conjugate butterfly kernel of radix-8}
+\label{alg:conjugate-butterfly-kernel-radix-8}
+\begin{algorithmic}[1]
+\REQUIRE{$x\in\mathbb{C}^n$, $n=8^t$}
+\ENSURE{$x:=\overline{A_{8,n}}x$}
+\FOR{$q=1,\dots,t$}
+\STATE{$k:=8^q$}
+\STATE{$n_b:=n/k$}
+\STATE{$\ell:=k/8$}
+\FOR{$b=1,\dots,n_b$}
+\FOR{$j=1\dots,\ell$}
+\STATE{$z_1:=x_{(b-1)k+j}$}
+\STATE{$z_2:=\overline{\omega_k^{j-1}}x_{(b-1)k+\ell+j}$}
+\STATE{$z_3:=\overline{\omega_k^{2(j-1)}}x_{(b-1)k+2\ell+j}$}
+\STATE{$z_4:=\overline{\omega_k^{3(j-1)}}x_{(b-1)k+3\ell+j}$}
+\STATE{$z_5:=\overline{\omega_k^{4(j-1)}}x_{(b-1)k+4\ell+j}$}
+\STATE{$z_6:=\overline{\omega_k^{5(j-1)}}x_{(b-1)k+5\ell+j}$}
+\STATE{$z_7:=\overline{\omega_k^{6(j-1)}}x_{(b-1)k+6\ell+j}$}
+\STATE{$z_8:=\overline{\omega_k^{7(j-1)}}x_{(b-1)k+7\ell+j}$}
+\STATE{$\tau_1:=z_1+z_5$, $\tau_2:=z_1-z_5$}
+\STATE{$\tau_3:=z_2+z_6$, $\tau_4:=z_2-z_6$}
+\STATE{$\tau_5:=z_3+z_7$, $\tau_6:=z_3-z_7$}
+\STATE{$\tau_7:=z_4+z_8$, $\tau_8:=z_4-z_8$}
+\STATE{$x_{(b-1)k+j}:=\tau_1+\tau_3+\tau_5+\tau_7$}
+\STATE{$x_{(b-1)k+\ell+j}:=\tau_2+\overline{a}\cdot\tau_4+i\cdot\tau_6+\overline{b}\cdot\tau_8$}
+\STATE{$x_{(b-1)k+2\ell+j}:=\tau_1+i\cdot\tau_3-\tau_5-i\cdot\tau_7$}
+\STATE{$x_{(b-1)k+3\ell+j}:=\tau_2+\overline{b}\cdot\tau_4-i\cdot\tau_6+\overline{a}\cdot\tau_8$}
+\STATE{$x_{(b-1)k+4\ell+j}:=\tau_1-\tau_3+\tau_5-\tau_7$}
+\STATE{$x_{(b-1)k+5\ell+j}:=\tau_2-\overline{a}\cdot\tau_4+i\cdot\tau_6-\overline{b}\cdot\tau_8$}
+\STATE{$x_{(b-1)k+6\ell+j}:=\tau_1-i\cdot\tau_3-\tau_5+i\cdot\tau_7$}
+\STATE{$x_{(b-1)k+7\ell+j}:=\tau_2-\overline{b}\cdot\tau_4-i\cdot\tau_6-\overline{a}\cdot\tau_8$}
+\ENDFOR
+\ENDFOR
+\ENDFOR
+\RETURN{$x$}
+\end{algorithmic}
+\end{algorithm}

@@ -1,0 +1,19 @@
+\setcounter{algorithm}{0}
+\begin{algorithm}[H]
+\caption{Butterfly-related kernels}
+\label{alg:butterfly-related-kernel}
+\begin{algorithmic}[1]
+\REQUIRE{$x\in\mathbb{C}^n$}
+\ENSURE{$x:=A_{r,n}x$ or $x:=\overline{A_{r,n}}x$}
+\FOR{$q=1,\dots,t$}
+\STATE{$k:=r^q$}
+\STATE{$n_b:=n/k$}
+%\STATE{$\ell:=k/r$}
+\FOR{$b=1,\dots,n_b$}
+\STATE{\hspace{.4cm}$x_{(b-1)k+1:bk}:=B_{r,k}x_{(b-1)k+1:bk}$}
+\STATE{or $x_{(b-1)k+1:bk}:=\overline{B_{r,k}}x_{(b-1)k+1:bk}$}
+\ENDFOR
+\ENDFOR
+\RETURN{$x$}
+\end{algorithmic}
+\end{algorithm}

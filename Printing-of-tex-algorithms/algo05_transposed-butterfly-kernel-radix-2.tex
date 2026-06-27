@@ -1,0 +1,22 @@
+\setcounter{algorithm}{4}
+\begin{algorithm}[H]
+\caption{Transposed butterfly kernel of radix-2}
+\label{alg:transposed-butterfly-kernel-radix-2}
+\begin{algorithmic}[1]
+\REQUIRE{$x\in\mathbb{C}^n$, $n=2^t$}
+\ENSURE{$x:=A_{2,n}^Tx$}
+\FOR{$q=t,\dots,1$}
+\STATE{$k:=2^q$}
+\STATE{$n_b:=n/k$}
+\STATE{$\ell:=k/2$}
+\FOR{$b=1,\dots,n_b$}
+\FOR{$j=1\dots,\ell$}
+\STATE{$\tau:=x_{(b-1)k+j+\ell}$}
+\STATE{$x_{(b-1)k+j+\ell}:=\omega_k^{j-1}(x_{(b-1)k+j}-\tau)$}
+\STATE{$x_{(b-1)k+j}:=x_{(b-1)k+j}+\tau$}
+\ENDFOR
+\ENDFOR
+\ENDFOR
+\RETURN{$x$}
+\end{algorithmic}
+\end{algorithm}

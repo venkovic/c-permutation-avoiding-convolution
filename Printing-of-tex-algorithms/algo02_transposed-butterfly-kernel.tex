@@ -1,0 +1,18 @@
+\setcounter{algorithm}{1}
+\begin{algorithm}[H]
+\caption{Transposed butterfly kernels}
+\label{alg:transposed-butterfly-kernel}
+\begin{algorithmic}[1]
+\REQUIRE{$x\in\mathbb{C}^n$}
+\ENSURE{$x:=A_{r,n}^Tx$}
+\FOR{$q=t,\dots,1$}
+\STATE{$k:=r^q$}
+\STATE{$n_b:=n/k$}
+%\STATE{$\ell:=k/r$}
+\FOR{$b=1,\dots,n_b$}
+\STATE{$x_{(b-1)k+1:bk}:=B_{r,k}^Tx_{(b-1)k+1:bk}$}
+\ENDFOR
+\ENDFOR
+\RETURN{$x$}
+\end{algorithmic}
+\end{algorithm}

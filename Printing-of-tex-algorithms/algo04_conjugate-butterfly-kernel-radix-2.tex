@@ -1,0 +1,22 @@
+\setcounter{algorithm}{3}
+\begin{algorithm}[H]
+\caption{Conjugate butterfly kernel of radix-2}
+\label{alg:conjugate-butterfly-kernel-radix-2}
+\begin{algorithmic}[1]
+\REQUIRE{$x\in\mathbb{C}^n$, $n=2^t$}
+\ENSURE{$x:=\overline{A_{2,n}}x$}
+\FOR{$q=1,\dots,t$}
+\STATE{$k:=2^q$}
+\STATE{$n_b:=n/k$}
+\STATE{$\ell:=k/2$}
+\FOR{$b=1,\dots,n_b$}
+\FOR{$j=1\dots,\ell$}
+\STATE{$\tau:=\overline{\omega_k^{j-1}}x_{(b-1)k+j+\ell}$}
+\STATE{$x_{(b-1)k+j+\ell}:=x_{(b-1)k+j}-\tau$}
+\STATE{$x_{(b-1)k+j}:=x_{(b-1)k+j}+\tau$}
+\ENDFOR
+\ENDFOR
+\ENDFOR
+\RETURN{$x$}
+\end{algorithmic}
+\end{algorithm}
