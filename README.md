@@ -1,4 +1,4 @@
-In the algorithms presented in Section~4 of Venkovic and Anzt (2025), for any given $x\in\mathbb{C}^n$, we need to evaluate $A_{r,n}x$, $\overline{A_{r,n}}x$ and $A_{r,n}^Tx$.
+In the algorithms presented in Section~4 of Venkovic and Anzt (2025), for any given $x\in\mathbb{C}^n$, we need to evaluate $A_{r,n}x$, $\overline{\strut A_{r,n}}x$ and $A_{r,n}^Tx$.
 Irrespective of the radix, these kernels are implemented as described in Algos.~1 and 2.
 In what follows, we show detailed implementations of these kernels for radices 2, 4, and 8.  
 
