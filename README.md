@@ -29,12 +29,17 @@ F_2=\begin{bmatrix}
 $$
 
 so that
-$B_{2,k}=
+
+$$
+B_{2,k}=
 \begin{bmatrix}
-I_{k/2} &  \Omega_{2,k/2}\\
+I_{k/2} &  \Omega_{2,k/2} \\
 I_{k/2} & -\Omega_{2,k/2}
-\end{bmatrix}$.\\
+\end{bmatrix}.
+$$
+
 Then, for all $x\in\mathbb{C}^k$, as we let $z_i:=x_{(i-1)k/2+1:ik/2}$ for $i=1,2$, we obtain
+
 $$
 \begin{align}
 B_{2,k}x=&\,
@@ -44,7 +49,9 @@ z_{1}-\Omega_{2,k/2}z_{2}\\
 \end{bmatrix}.
 \end{align}
 $$
+
 We then let $\tau:=\Omega_{2,k/2}z_{2}$ so that
+
 $$
 \begin{align}
 B_{2,k}x=&\,
@@ -54,6 +61,7 @@ z_{1}-\tau
 \end{bmatrix}.
 \end{align}
 $$
+
 This leads to Algo.~\ref{alg:butterfly-kernel-radix-2} for the computation of $x\mapsto A_{2,n}x$.  
 
 <div align="center">
@@ -61,6 +69,7 @@ This leads to Algo.~\ref{alg:butterfly-kernel-radix-2} for the computation of $x
 </div>
 
 The radix-2 conjugate butterfly kernel relies on the expression
+
 $$
 \begin{align}
 \overline{B_{2,k}}x=&\,
@@ -70,7 +79,9 @@ z_{1}-\overline{\Omega_{2,k/2}}z_{2}\\
 \end{bmatrix}
 \end{align}
 $$
+
 so that, as we let $\tau:=\overline{\Omega_{2,k/2}}z_{2}$, we still have
+
 $$
 \begin{align}
 \overline{B_{2,k}}x=&\,
@@ -80,6 +91,7 @@ z_{1}-\tau
 \end{bmatrix}.
 \end{align}
 $$
+
 This leads to Algo.~\ref{alg:conjugate-butterfly-kernel-radix-2} for the computation of $x\mapsto\overline{A_{2,n}}x$.  
 
 <div align="center">
@@ -87,6 +99,7 @@ This leads to Algo.~\ref{alg:conjugate-butterfly-kernel-radix-2} for the computa
 </div>
 
 n the other hand, we also have
+
 $$
 \begin{align}
 B_{2,k}^Tx=
@@ -106,6 +119,7 @@ z_{1}+\tau\hfill\\
 \end{bmatrix}.
 \end{align}
 $$
+
 This leads to Algo.~\ref{alg:transposed-butterfly-kernel-radix-2} for the computation of $x\mapsto A_{2,n}^Tx$.  
 
 <div align="center">
@@ -114,13 +128,16 @@ This leads to Algo.~\ref{alg:transposed-butterfly-kernel-radix-2} for the comput
 
 ## Radix-4 butterfly-related kernels
 For the radix-4 case, we have
+
 $$
 \begin{align}
 B_{4,k}=
 (F_4\otimes I_{k/4})\,\text{diag}\left(I_{k/4},\Omega_{4,k/4},\Omega_{4,k/4}^2,\Omega_{4,k/4}^3\right)
 \end{align}
 $$
+
 where
+
 $$
 \begin{align}
 F_4=
@@ -132,7 +149,9 @@ F_4=
 \end{bmatrix}
 \end{align}
 $$
+
 so that
+
 $$
 \begin{align}
 B_{4,k}=
@@ -144,7 +163,9 @@ I_{k/4}& i\cdot\Omega_{4,k/4}&-\Omega_{4,k/4}^2&-i\cdot\Omega_{4,k/4}^3
 \end{bmatrix}.
 \end{align}
 $$
+
 Then, for all $x\in\mathbb{C}^k$, as we let $z_i:=x_{(i-1)k/4+1:ik/4}$ for $i=1,\dots,4$, we obtain
+
 $$
 \begin{align}
 B_{4,k}x=&\,
@@ -156,7 +177,9 @@ z_{1}+i\cdot\Omega_{4,k/4}z_{2}-\Omega_{4,k/4}^2z_{3}-i\cdot\Omega_{4,k/4}^3z_{4
 \end{bmatrix}.
 \end{align}
 $$
+
 Once we introduce
+
 $$
 \begin{align}
 &\tau_1:=z_1+\Omega_{4,k/4}^2z_3,\hspace{1.02cm}
@@ -165,7 +188,9 @@ $$
 \tau_4:=\Omega_{4,k/4}z_2-\Omega_{4,k/4}^3z_4\nonumber
 \end{align}
 $$
+
 we get
+
 $$
 \begin{align}
 B_{4,k}x=&\,
@@ -177,6 +202,7 @@ B_{4,k}x=&\,
 \end{bmatrix}.
 \end{align}
 $$
+
 This leads to Algo.~\ref{alg:butterfly-kernel-radix-4} for the computation of $x\mapsto A_{4,n}x$.  
 
 <div align="center">
