@@ -446,4 +446,4 @@ and that leads to Algo. 11 for the computation of $x\mapsto A_{8,n}^Tx$.
   <img src="Printing-of-tex-algorithms/algo11_transposed-butterfly-kernel-radix-8.png">
 </div>
 
-N. Venkovic and H. Anzt ,(2025). Permutation-avoiding FFT-based convolution. arXiv preprint, arXiv:12506.12718.
+N. Venkovic and H. Anzt (2025). Permutation-avoiding FFT-based convolution. arXiv preprint, arXiv:12506.12718.
