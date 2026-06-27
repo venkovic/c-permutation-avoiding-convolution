@@ -132,7 +132,7 @@ For the radix-4 case, we have
 $$
 \begin{align}
 B_{4,k}=
-(F_4\otimes I_{k/4})\,\text{diag}\left(I_{k/4},\Omega_{4,k/4},\Omega_{4,k/4}^2,\Omega_{4,k/4}^3\right)
+(F_4\otimes I_{k/4})\text{diag}\left(I_{k/4},\Omega_{4,k/4},\Omega_{4,k/4}^2,\Omega_{4,k/4}^3\right)
 \end{align}
 $$
 
