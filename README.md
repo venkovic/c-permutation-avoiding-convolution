@@ -20,7 +20,11 @@ B_{2,k}=
 $$
 
 where 
-$$F_2=\begin{bmatrix}1& 1\\1&-1\end{bmatrix}$$
+
+$$
+F_2=\begin{bmatrix}1& 1\\1&-1\end{bmatrix}
+$$
+
 so that
 $B_{2,k}=
 \begin{bmatrix}
