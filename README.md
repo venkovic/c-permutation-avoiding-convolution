@@ -14,10 +14,8 @@ In what follows, we show detailed implementations of these kernels for radices 2
 
 For the radix-2 case, we have
 $$
-\begin{align}
 B_{2,k}=
 (F_2\otimes I_{k/2})\,\text{diag}\left(I_{k/2},\Omega_{2,k/2}\right)
-\end{align}
 $$
 where 
 $F_2=\begin{bmatrix}1& 1\\1&-1\end{bmatrix}$ 
