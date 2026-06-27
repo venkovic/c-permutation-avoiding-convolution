@@ -182,10 +182,10 @@ Once we introduce
 
 $$
 \begin{align}
-&\tau_1:=z_1+\Omega_{4,k/4}^2z_3,\hspace{1.02cm}
-\tau_2:=z_1-\Omega_{4,k/4}^2z_3\\
-&\tau_3:=\Omega_{4,k/4}z_2+\Omega_{4,k/4}^3z_4,\;\;
-\tau_4:=\Omega_{4,k/4}z_2-\Omega_{4,k/4}^3z_4\nonumber
+&\tau_1:=z_1+\Omega_{4,k/4}^2z_3\\
+&\tau_2:=z_1-\Omega_{4,k/4}^2z_3\\
+&\tau_3:=\Omega_{4,k/4}z_2+\Omega_{4,k/4}^3z_4\\
+&\tau_4:=\Omega_{4,k/4}z_2-\Omega_{4,k/4}^3z_4\\
 \end{align}
 $$
 
