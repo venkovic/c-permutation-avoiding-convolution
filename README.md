@@ -255,6 +255,47 @@ This leads to Algo. 7 for the computation of $x\mapsto \overline{A_{4,n}}x$.
   <img src="Printing-of-tex-algorithms/algo07_conjugate-butterfly-kernel-radix-4.png">
 </div>
 
+The radix-4 transposed butterfly kernel relies on the expression
+
+$$
+\begin{align}
+B_{4,k}^Tx=
+\begin{bmatrix}
+z_{1}+z_{2}+z_{3}+z_{4}\hfill\\
+\Omega_{4,k/4}z_{1}-i\cdot\Omega_{4,k/4}z_{2}-\Omega_{4,k/4}z_{3}+i\cdot\Omega_{4,k/4}z_{4}\\
+\Omega_{4,k/4}^2z_{1}-\Omega_{4,k/4}^2z_{2}+\Omega_{4,k/4}^2z_{3}-\Omega_{4,k/4}^2z_{4}\hfill\\
+\Omega_{4,k/4}^3z_{1}+i\cdot\Omega_{4,k/4}^3z_{2}-\Omega_{4,k/4}^3z_{3}-i\cdot\Omega_{4,k/4}^3z_{4}\hfill
+\end{bmatrix}.
+\end{align}
+$$
+
+As we introduce
+
+$$
+\begin{align}
+\tau_1:=z_1+z_3\\
+\tau_2:=\Omega_{4,k/4}(z_1-z_3)\\
+\tau_3:=z_2+z_4\\
+\tau_4:=\Omega_{4,k/4}(z_2-z_4)
+\end{align}
+$$
+
+we obtain
+
+$$
+\begin{align}
+B_{4,k}^Tx=
+\begin{bmatrix}
+\tau_1+\tau_3\hfill\\
+\tau_2-i\cdot\tau_4\hfill\\
+\Omega_{4,k/4}^2(\tau_1-\tau_3)\hfill\\
+\Omega_{4,k/4}^2(\tau_2+i\cdot\tau_4)\hfill
+\end{bmatrix}.
+\end{align}
+$$
+
+This leads to Algo. 8 for the computation of $x\mapsto A_{4,n}^Tx$.
+
 <div align="center">
   <img src="Printing-of-tex-algorithms/algo08_transposed-butterfly-kernel-radix-4.png">
 </div>
