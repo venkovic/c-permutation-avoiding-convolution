@@ -300,14 +300,14 @@ This leads to Algo. 8 for the computation of $x\mapsto A_{4,n}^Tx$.
   <img src="Printing-of-tex-algorithms/algo08_transposed-butterfly-kernel-radix-4.png">
 </div>
 
-## Radix-8 butterfly kernels
+## Radix-8 butterfly-related kernels
 
 For the radix-8 case, we have
 
 $$
 \begin{align}
 B_{8,k}=
-(F_8\otimes I_{k/8})\,\text{diag}\left(I_{k/8},\Omega_{8,k/8},\Omega_{8,k/8}^2,\Omega_{8,k/8}^3,\Omega_{8,k/8}^4,\Omega_{8,k/8}^5,\Omega_{8,k/8}^6,\Omega_{8,k/8}^7\right)
+(F_8\otimes I_{k/8})\text{diag}\left(I_{k/8},\Omega_{8,k/8},\Omega_{8,k/8}^2,\Omega_{8,k/8}^3,\Omega_{8,k/8}^4,\Omega_{8,k/8}^5,\Omega_{8,k/8}^6,\Omega_{8,k/8}^7\right)
 \end{align}
 $$
 
@@ -362,15 +362,85 @@ B_{8,k}x=
 \end{align}
 $$
 
-This leads to Algo.~\ref{alg:butterfly-kernel-radix-8} for the computation of $x\mapsto A_{8,n}x$.
+This leads to Algo. 9 for the computation of $x\mapsto A_{8,n}x$.
 
 <div align="center">
   <img src="Printing-of-tex-algorithms/algo09_butterfly-kernel-radix-8.png">
 </div>
 
+For the radix-8 conjugate butterfly kernel, we introduce
+
+$$
+\begin{align}
+&\tau_1:=z_1+\overline{\Omega_{8,k/8}^4}z_5\\
+&\tau_2:=z_1-\overline{\Omega_{8,k/8}^4}z_5\\
+&\tau_3:=\overline{\Omega_{8,k/8}}z_2+\overline{\Omega_{8,k/8}^5}z_6\\
+&\tau_4:=\overline{\Omega_{8,k/8}}z_2-\overline{\Omega_{8,k/8}^5}z_6\\
+&\tau_5:=\overline{\Omega_{8,k/8}^2}z_3+\overline{\Omega_{8,k/8}^6}z_7\\
+&\tau_6:=\overline{\Omega_{8,k/8}^2}z_3-\overline{\Omega_{8,k/8}^6}z_7\\
+&\tau_7:=\overline{\Omega_{8,k/8}^3}z_4+\overline{\Omega_{8,k/8}^7}z_8\\
+&\tau_8:=\overline{\Omega_{8,k/8}^3}z_4-\overline{\Omega_{8,k/8}^7}z_8
+\end{align}
+$$
+
+and we obtain
+
+$$
+\begin{align}
+\overline{B_{8,k}}x=
+\begin{bmatrix}
+\tau_1+\tau_3+\tau_5+\tau_7\hfill\\
+\tau_2+\overline{a}\cdot\tau_4+i\cdot\tau_6+\overline{b}\cdot\tau_8\hfill\\
+\tau_1+i\cdot\tau_3-\tau_5-i\cdot\tau_7\hfill\\
+\tau_2+\overline{b}\cdot\tau_4-i\cdot\tau_6+\overline{a}\cdot\tau_8\hfill\\
+\tau_1-\tau_3+\tau_5-\tau_7\hfill\\
+\tau_2-\overline{a}\cdot\tau_4+i\cdot\tau_6-\overline{b}\cdot\tau_8\hfill\\
+\tau_1-i\cdot\tau_3-\tau_5+i\cdot\tau_7\hfill\\
+\tau_2-\overline{b}\cdot\tau_4-i\cdot\tau_6-\overline{a}\cdot\tau_8\hfill
+\end{bmatrix}
+\end{align}
+$$
+
+which leads to Algo. 10 for the computation of $x\mapsto \overline{A_{8,n}}x$.
+
 <div align="center">
   <img src="Printing-of-tex-algorithms/algo10_conjugate-butterfly-kernel-radix-8.png">
 </div>
+
+For the transposed butterfly kernel, we introduce
+
+$$
+\begin{align}
+&\tau_1:=z_1+z_5\\
+&\tau_2:=\Omega_{8,k/8}(z_1-z_5)\\
+&\tau_3:=z_2+z_6\\
+&\tau_4:=\Omega_{8,k/8}(z_2-z_6)\\
+&\tau_5:=z_3+z_7\\
+&\tau_6:=\Omega_{8,k/8}(z_3-z_7)\\
+&\tau_7:=z_4+z_8\\
+&\tau_8:=\Omega_{8,k/8}(z_4-z_8)
+\end{align}
+$$
+
+to obtain
+
+$$
+\begin{align}
+B_{8,k}^Tx=
+\begin{bmatrix}
+\tau_1+\tau_3+\tau_5+\tau_7\hfill\\
+\tau_2+a\cdot\tau_4-i\cdot\tau_6+b\cdot\tau_8\hfill\\
+\Omega_{8,k/8}^2(\tau_1-i\cdot\tau_3-\tau_5+i\cdot\tau_7)\hfill\\
+\Omega_{8,k/8}^2(\tau_2+b\cdot\tau_4+i\cdot\tau_6+a\cdot\tau_8)\hfill\\
+\Omega_{8,k/8}^4(\tau_1-\tau_3+\tau_5-\tau_7)\hfill\\
+\Omega_{8,k/8}^4(\tau_2-a\cdot\tau_4-i\cdot\tau_6-b\cdot\tau_8)\hfill\\
+\Omega_{8,k/8}^6(\tau_1+i\cdot\tau_3-\tau_5-i\cdot\tau_7)\hfill\\
+\Omega_{8,k/8}^6(\tau_2-b\cdot\tau_4+i\cdot\tau_6-a\cdot\tau_8)\hfill
+\end{bmatrix}
+\end{align}
+$$
+
+and that leads to Algo. 11 for the computation of $x\mapsto A_{8,n}^Tx$.
 
 <div align="center">
   <img src="Printing-of-tex-algorithms/algo11_transposed-butterfly-kernel-radix-8.png">
