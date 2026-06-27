@@ -16,11 +16,11 @@ For the radix-2 case, we have
 
 $$
 B_{2,k}=
-(F_2\otimes I_{k/2})\,\text{diag}\left(I_{k/2},\Omega_{2,k/2}\right)
+(F_2\otimes I_{k/2})\text{diag}\left(I_{k/2},\Omega_{2,k/2}\right)
 $$
 
 where 
-$F_2=\begin{bmatrix}1& 1\\1&-1\end{bmatrix}$ 
+$$F_2=\begin{bmatrix}1& 1\\1&-1\end{bmatrix}$$
 so that
 $B_{2,k}=
 \begin{bmatrix}
